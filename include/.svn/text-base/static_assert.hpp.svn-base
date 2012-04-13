@@ -1,0 +1,17 @@
+#ifndef _STATIC_ASSERT_HPP_INCLUDED_DSOFHH33O8UAFDLKJ4UALKJW2OIJAFSOIUJ4LKJFDSLK
+#define _STATIC_ASSERT_HPP_INCLUDED_DSOFHH33O8UAFDLKJ4UALKJW2OIJAFSOIUJ4LKJFDSLK
+
+namespace feng
+{
+
+    template<int> struct compile_time_error;
+    template<> struct compile_time_error<true> {};
+}
+
+
+#define STATIC_ASSERT(expr, msg) \
+    { feng::compile_time_error<((expr) != 0)> ERROR_##msg; (void)ERROR_##msg; }
+
+#endif//_STATIC_ASSERT_HPP_INCLUDED_DSOFHH33O8UAFDLKJ4UALKJW2OIJAFSOIUJ4LKJFDSLK
+
+

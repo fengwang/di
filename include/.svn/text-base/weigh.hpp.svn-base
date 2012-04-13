@@ -1,0 +1,44 @@
+/// @file weigh.hpp
+/// @brief A template container keeps the value of weighs 
+///        of Legendre-Gaussian Quadratues
+/// @author wang feng
+
+#ifndef _WEIGH_HPP_INCLUDED_WOIASLDKJ4OI8ADFSLKJ349I8ADFIL32OIADFLOIJ348IUWEOIJF
+#define _WEIGH_HPP_INCLUDED_WOIASLDKJ4OI8ADFSLKJ349I8ADFIL32OIADFLOIJ348IUWEOIJF
+
+#include <cstddef>
+#include <array>
+#include <algorithm>
+
+namespace feng
+{
+
+	/// Forward declaration.
+    template< typename T, std::size_t STEP >
+    struct weigh;
+
+
+	/// Template class weigh, partially specialized when the integration step is 3.
+	/// @param T value type of elements stored in the container.
+    template< typename T >
+    struct weigh<T, 3> : std::array<T, 3>
+    {
+		/// Default constructor.
+        weigh()
+        {
+            const T w[3] = { 	T( 5 ) / T( 9 ),
+                                T( 8 ) / T( 9 ),
+                                T( 5 ) / T( 9 )
+                           };
+            std::copy( w, w + 3, std::array<T,3>::begin() );
+        }
+    };
+
+
+
+}//namespace feng
+
+
+#endif//_WEIGH_HPP_INCLUDED_WOIASLDKJ4OI8ADFSLKJ349I8ADFIL32OIADFLOIJ348IUWEOIJF
+
+

@@ -1,0 +1,104 @@
+/// @file gaussian_quadrature.hpp
+/// @brief Define and implement Legendre-Gaussian Quadrature, three steps, three dimensions
+/// @author wang feng
+
+#ifndef _GAUSSIAN_QUADRATURE_HPP_INCLUDED_WOIJASFDLKJ4O9U8AFDLJK3298AILUEO8U34IU
+#define _GAUSSIAN_QUADRATURE_HPP_INCLUDED_WOIJASFDLKJ4O9U8AFDLJK3298AILUEO8U34IU
+
+#include <abscissa.hpp>
+#include <weigh.hpp>
+
+#include <cassert>
+#include <cstddef>
+#include <algorithm>
+#include <numeric>
+#include <iterator>
+
+#include <array>
+
+
+namespace feng 
+{
+
+	/// Foward declaration.
+    template < 	typename T,
+				std::size_t STEP,
+				std::size_t DIM	
+			>
+    struct legendre_gaussian_quadrature;
+
+	/// Template class legendre_gaussian_quadrature, specialized for three steps in three dimensions
+	/// @T Element type of weighs and abscissas.
+    template< typename T >
+    struct legendre_gaussian_quadrature<T, 3, 3>
+    {
+		typedef weigh<T,3> 					weigh_type;
+		typedef abscissa<T,3> 				abscissa_type;
+		
+		typedef std::array<T,3>				grid_1d_type;
+		typedef std::array<grid_1d_type,3>		grid_2d_type;
+		typedef std::array<grid_2d_type,3>		grid_3d_type;
+
+		typedef std::array<T,27> 				weigh_type_3d;
+
+        private:
+			weigh_type_3d weigh_;
+			
+        public:
+			
+			/// @name Default constructors and destructors.
+
+			//@{
+            
+			/// Constructor.
+			legendre_gaussian_quadrature()
+			{
+				weigh_type w;
+
+				for (std::size_t i = 0; i < 3; ++i)
+					for (std::size_t j = 0; j < 3; ++j)
+						for (std::size_t k = 0; k < 3; ++k)
+						{
+							weigh_[i*9+j*3+k] = w[i]*w[j]*w[k];
+						}
+			}
+
+			/// Destructor.
+			~legendre_gaussian_quadrature(){}
+
+			//@}
+
+			/// @name Integration implementation.
+
+			//@{
+
+			/// Function Integration, declared but not implemented.
+            T operator()( T(*)(const T) ) const;
+
+			/// Descrete value accumulation.
+			template< typename Itor >
+			T operator()( Itor first, Itor last ) const
+			{
+				assert( 27 == std::distance(first, last) );
+
+				//const T ans = std::inner_product( weigh_.begin(), weigh_.end(), first, T() );
+				const T ans = std::inner_product( first, last, weigh_.begin(), T() );
+				return ans/T(8);
+			}
+
+			//debug only
+			weigh_type_3d& get_weigh()
+			{
+				return weigh_;
+			}
+			
+			//@}
+
+
+    };
+
+}//namespace feng
+
+#endif//_GAUSSIAN_QUADRATURE_HPP_INCLUDED_WOIJASFDLKJ4O9U8AFDLJK3298AILUEO8U34IU
+
+

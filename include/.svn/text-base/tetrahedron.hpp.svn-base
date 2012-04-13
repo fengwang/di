@@ -1,0 +1,295 @@
+/// @file tetrahedron.hpp
+/// @brief template class tetrahedron definition
+/// @author wang feng 
+
+
+#ifndef _TETRAHEDRON_HPP_INCLUDED_SOIJ3498UYAFSDLJKXVLCKJDOFJIASFOIU398UYAFOIUDF
+#define _TETRAHEDRON_HPP_INCLUDED_SOIJ3498UYAFSDLJKXVLCKJDOFJIASFOIU398UYAFOIUDF
+
+#include <const_reference_evaluator.hpp>
+#include <cartesian_coordinate.hpp>
+#include <tri_ary.hpp>
+
+namespace feng
+{
+
+#if 0
+
+
+
+
+                                  A
+                                 /|\                      
+                                / | \                     
+                               /  |  \                    
+                              /   |   \                   
+                             /    |    \                  
+                            /     |     \                 
+                           /      |      \                
+                          /       |       \               
+                         /        |        \              
+                        /         |         \             
+                       /          |          \           
+                      /           |           \          
+                     /            |     b      \         
+                    /             |             \        
+                   /     c        |              \       
+                  /               |               \      
+                 /              ,.D-,,             \     
+                /           ,-'`      `'.,          \    
+               /        ,-'`              `'.,       \   
+              /     ,-'`           a          ``-.,   \  
+             /  ,-'`                               `'.,\ 
+            B-------------------------------------------C	
+
+
+
+
+#endif
+	
+	/// Template to represent a tetrahedron.
+	/// @param T item type of each vertex of tetrahedron
+
+    template<typename T = double>
+    struct tetrahedron
+	{
+
+		/// @name Public type definition
+
+		//@{
+
+		/// Item type of each vertex.
+		typedef T 									value_type;
+
+		/// Vertex type.
+		typedef cartesian_coordinate<value_type> 	vertex_type;
+
+		/// Tri_ary type.
+		typedef tri_ary<value_type> 				array_type;
+
+		/// Self type.
+		typedef tetrahedron 						self_type;
+
+		/// Lvalue of vertex, non-const.
+		typedef vertex_type& 						reference_type;
+
+		/// Lvalue of vertex, const.
+		//typedef const reference_type 				const_reference_type;
+		typedef typename const_reference_evaluator<vertex_type>::result_type const_reference_type;
+
+		//@}
+
+
+		/// @name Private data members.
+
+
+		//@{
+
+		/// Four verteces the tetrahedron.
+		vertex_type A_;
+		vertex_type B_;
+		vertex_type C_;
+		vertex_type D_;
+
+		//@}
+
+		
+
+
+		/// @name Constructors.	
+
+		//@{
+
+		/// Generate from four verteces.
+		explicit tetrahedron( 	const vertex_type& A = vertex_type(),
+		const vertex_type& B = vertex_type(),
+		const vertex_type& C = vertex_type(),
+		const vertex_type& D = vertex_type() )
+		: A_(A), B_(B), C_(C), D_(D)
+		{}
+
+		/// Generate from a different typed tetrahedron.
+		template< typename U>
+		tetrahedron( const tetrahedron<U>& other )
+		: 	A_(other.A_),
+		B_(other.B_),
+		C_(other.C_),
+		D_(other.D_)
+		{}
+
+		/// Generate from another tetrahedron.
+		tetrahedron( const self_type& other )
+		: 	A_(other.A_),
+		B_(other.B_),
+		C_(other.C_),
+		D_(other.D_)
+		{}
+
+		//@}
+
+
+
+		/// @name Assignment.
+
+		//@{
+
+		/// Assignment from another tetrahedron.
+		self_type&
+		operator = ( const self_type& other )
+		{
+			A_ = other.A_;
+			B_ = other.B_;
+			C_ = other.C_;
+			D_ = other.D_;
+
+			return *this;
+		}
+
+		/// Assignment from a different type tetrahedron.
+		template<typename U>
+		self_type&
+		operator = ( const tetrahedron<U>& other )
+		{
+			A_ = other.A_;
+			B_ = other.B_;
+			C_ = other.C_;
+			D_ = other.D_;
+
+			return *this;
+		}
+
+		//@}
+
+		/// @name vertex accesses.
+
+		//@{
+
+		/// Access to four verteces, const and non-const.
+
+		reference_type
+		a()
+		{ return A_; }
+
+		reference_type
+		b()
+		{ return D_; }
+
+		reference_type
+		c()
+		{ return D_; }
+
+		reference_type
+		d()
+		{ return D_; }
+
+		const_reference_type
+		a() const
+		{ return A_; }
+
+		const_reference_type
+		b() const
+		{ return D_; }
+
+		const_reference_type
+		c() const
+		{ return D_; }
+
+		const_reference_type
+		d() const
+		{ return D_; }
+
+		//@}
+
+
+		/// @name Numerical method.
+
+		//@{
+
+		/// Return volume of tetrahedron.
+		value_type
+		volume() const
+		{
+			const array_type ab(A_, B_);
+			const array_type ac(A_, C_);
+			const array_type ad(A_, D_);
+
+			const array_type tmp = cross_product(ab, ac);
+			const value_type ans = inner_product(tmp, ad) / value_type(6) ;
+
+			return ans > value_type() ? ans : -ans;
+		}
+
+		/// Return the area of the triangle opposite to vertex A.
+		value_type
+		area_a() const
+		{
+			const array_type bc(A_, C_);
+			const array_type bd(B_, D_);
+			const array_type tmp = cross_product(bc, bd);
+			const value_type ans = tmp.norm()/value_type(2);
+
+			return ans;
+		}
+
+		/// Return the area of the triangle opposite to vertex B.
+		value_type
+		area_b() const
+		{
+			const array_type ac(A_, C_);
+			const array_type ad(A_, D_);
+			const array_type tmp = cross_product(ac, ad);
+			const value_type ans = tmp.norm()/value_type(2);
+
+			return ans;
+		}
+
+		/// Return the area of the triangle opposite to vertex C.
+		value_type
+		area_c() const
+		{
+			const array_type ab(A_, B_);
+			const array_type ad(A_, D_);
+			const array_type tmp = cross_product(ab, ad);
+			const value_type ans = tmp.norm()/value_type(2);
+
+			return ans;
+		}
+
+		/// Return the area of the triangle opposite to vertex D.
+		value_type
+		area_d() const
+		{
+			const array_type ab(A_, B_);
+			const array_type ac(A_, C_);
+			const array_type tmp = cross_product(ab, ac);
+			const value_type ans = tmp.norm()/value_type(2);
+
+			return ans;
+		}
+
+		//@}
+
+
+		friend
+		std::ostream&
+		operator << ( std::ostream& lhs, const self_type& rhs )
+		{
+			lhs << "["
+				<< "\nA : " << rhs.A_
+				<< "\nB : " << rhs.B_
+				<< "\nC : " << rhs.C_
+				<< "\n]\n";
+		
+			return lhs;
+		}
+
+
+
+}; //struct tetrahedron
+
+
+}//namespace feng
+
+#endif//_TETRAHEDRON_HPP_INCLUDED_SOIJ3498UYAFSDLJKXVLCKJDOFJIASFOIU398UYAFOIUDF
+
+

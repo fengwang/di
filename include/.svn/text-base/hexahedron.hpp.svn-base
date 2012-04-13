@@ -1,0 +1,315 @@
+/// @file hexahedron.hpp
+/// @brief Template class hexahedron definition.
+/// @author wang feng
+
+#ifndef _HEXAHEDRON_HPP_INCLUDED_WOIJASFLKJ40UALDFKJ4UALWERIJASFODIJU4OIJSDFLKJV
+#define _HEXAHEDRON_HPP_INCLUDED_WOIJASFLKJ40UALDFKJ4UALWERIJASFODIJU4OIJSDFLKJV
+
+#include <const_reference_evaluator.hpp>
+#include <tetrahedron.hpp>
+#include <cartesian_coordinate.hpp>
+
+#include <iostream>
+
+namespace feng
+{
+    /// Template class hexahedron.
+    /// @param T Type of coordinate.
+
+    template< typename T >
+    struct hexahedron
+    {
+
+            /// @name Public typedefs.
+
+            //@{
+
+            /// Type of coordinate and vertex.
+            typedef T 									value_type;
+
+            /// Tetrahedron type.
+            typedef tetrahedron<value_type> 			tetrahedron_type;
+
+            /// Coordinate type.
+            typedef cartesian_coordinate<value_type> 	vertex_type;
+
+            /// Self type.
+            typedef hexahedron 							self_type;
+
+            /// Lvalue of vertex.
+            typedef vertex_type& 						coordinate_reference_type;
+
+            /// const lvalue of vertex.
+            //typedef const coordinate_reference_type 	coordinate_const_reference_type;
+			typedef typename const_reference_evaluator<value_type>::result_type coordinate_const_reference_type;
+            ///@}
+
+            /// @name Verteces
+
+            //@{
+
+            vertex_type a_;
+            vertex_type b_;
+            vertex_type c_;
+            vertex_type d_;
+            vertex_type e_;
+            vertex_type f_;
+            vertex_type g_;
+            vertex_type h_;
+
+            ///@}
+
+            /// @name Constructors.
+
+            //@{
+
+            /// Default Constructor.
+            hexahedron( const vertex_type& A = vertex_type(),
+                        const vertex_type& B = vertex_type(),
+                        const vertex_type& C = vertex_type(),
+                        const vertex_type& D = vertex_type(),
+                        const vertex_type& E = vertex_type(),
+                        const vertex_type& F = vertex_type(),
+                        const vertex_type& G = vertex_type(),
+                        const vertex_type& H = vertex_type()
+                      )
+                : a_( A ), b_( B ), c_( C ), d_( D ), e_( E ), f_(F), g_( G ), h_( H )
+            {}
+
+            /// Copy Constructor.
+            hexahedron( const self_type& other )
+                : 	a_( other.a_ ),
+                    b_( other.b_ ),
+                    c_( other.c_ ),
+                    d_( other.d_ ),
+                    e_( other.e_ ),
+                    f_( other.f_ ),
+                    g_( other.h_ ),
+                    h_( other.h_ )
+            {}
+
+            /// Templated copy constructor.
+            template< typename U >
+            hexahedron( const hexahedron<U>& other )
+                : 	a_( other.a_ ),
+                    b_( other.b_ ),
+                    c_( other.c_ ),
+                    d_( other.d_ ),
+                    e_( other.e_ ),
+                    f_( other.f_ ),
+                    g_( other.h_ ),
+                    h_( other.h_ )
+            {}
+
+            //@}
+
+            ///@name Assignments.
+
+            //@{
+
+
+            /// Assign from another hexahedron.
+            self_type&
+            operator = ( const self_type& other )
+            {
+                a_ = other.a_;
+                b_ = other.b_;
+                c_ = other.c_;
+                d_ = other.d_;
+                e_ = other.e_;
+                f_ = other.f_;
+                g_ = other.g_;
+                h_ = other.h_;
+                return *this;
+            }
+
+            /// Assign from another different type hexahedron.
+            template< typename U >
+            self_type&
+            operator = ( const hexahedron<U>& other )
+            {
+                a_ = other.a_;
+                b_ = other.b_;
+                c_ = other.c_;
+                d_ = other.d_;
+                e_ = other.e_;
+                f_ = other.f_;
+                g_ = other.g_;
+                h_ = other.h_;
+                return *this;
+            }
+
+            //@}
+
+            /// @name Vertex accessment, non-const.
+
+            //@{
+
+            coordinate_reference_type
+            a()
+            {
+                return a_;
+            }
+
+            coordinate_reference_type
+            b()
+            {
+                return b_;
+            }
+
+            coordinate_reference_type
+            c()
+            {
+                return c_;
+            }
+
+            coordinate_reference_type
+            d()
+            {
+                return d_;
+            }
+
+            coordinate_reference_type
+            e()
+            {
+                return e_;
+            }
+
+            coordinate_reference_type
+            f()
+            {
+                return f_;
+            }
+
+            coordinate_reference_type
+            g()
+            {
+                return g_;
+            }
+
+            coordinate_reference_type
+            h()
+            {
+                return h_;
+            }
+
+            //@}
+
+
+            /// @name Vertex accessment, const.
+
+            //@{
+
+            coordinate_const_reference_type
+            a() const
+            {
+                return a_;
+            }
+
+            coordinate_const_reference_type
+            b() const
+            {
+                return b_;
+            }
+
+            coordinate_const_reference_type
+            c() const
+            {
+                return c_;
+            }
+
+            coordinate_const_reference_type
+            d() const
+            {
+                return d_;
+            }
+
+            coordinate_const_reference_type
+            e() const
+            {
+                return e_;
+            }
+
+            coordinate_const_reference_type
+            f() const
+            {
+                return f_;
+            }
+
+            coordinate_const_reference_type
+            g() const
+            {
+                return g_;
+            }
+
+            coordinate_const_reference_type
+            h() const
+            {
+                return h_;
+            }
+
+            //@}
+
+            /// @Return the volume of the hexahedron.
+            value_type
+            volume() const
+            {
+                /// The volume calculation algorithm is set to virtual
+                return calculate_volume();
+            }
+
+			friend
+			std::ostream&
+			operator << ( std::ostream& os, const self_type& hd )
+			{
+				os  << "["
+					<< "\nA :" << hd.a_
+					<< "\nB :" << hd.b_
+					<< "\nC :" << hd.c_
+					<< "\nD :" << hd.d_
+					<< "\nE :" << hd.e_
+					<< "\nF :" << hd.f_
+					<< "\nG :" << hd.g_
+					<< "\nH :" << hd.h_
+					<< "\n]\n";
+			
+				return os;
+			}
+
+
+        private:
+
+            /// @Return the volume of the hexahedron.
+            /// Simply partition the hexahedron into five tetrahedrons,
+            /// then calculate the volume of tetrahedron and return their accumulation.
+            /// This method is designed to be virtual, awaiting overriding in case of potential bug.
+            virtual value_type
+            calculate_volume() const
+            {
+                const tetrahedron_type bacf( b_, a_, c_, f_ );
+                const tetrahedron_type eahf( e_, a_, h_, f_ );
+                const tetrahedron_type dahc( d_, a_, h_, c_ );
+                const tetrahedron_type ghfc( g_, h_, f_, c_ );
+                const tetrahedron_type cahf( c_, a_, h_, f_ );
+                const value_type ans =
+                    bacf.volume() +
+                    eahf.volume() +
+                    dahc.volume() +
+                    ghfc.volume() +
+                    cahf.volume();
+                return ans;
+            }
+
+
+    };//class hexahedron
+
+
+
+}//namespace feng
+
+
+
+
+#endif//_HEXAHEDRON_HPP_INCLUDED_WOIJASFLKJ40UALDFKJ4UALWERIJASFODIJU4OIJSDFLKJV
+
+

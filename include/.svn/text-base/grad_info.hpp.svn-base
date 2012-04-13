@@ -1,0 +1,48 @@
+#ifndef _GRADE_INFO_HPP_INCLUDED_WOINASFO8IU3498AFSLKJ439UIJHAFSDJKL34OIAFLKJ
+#define _GRADE_INFO_HPP_INCLUDED_WOINASFO8IU3498AFSLKJ439UIJHAFSDJKL34OIAFLKJ
+
+#include <tri_ary.hpp>
+#include <cartesian_coordinate.hpp>
+
+//#include <boost/archive/xml_oarchive.hpp>
+//#include <boost/archive/xml_iarchive.hpp>
+
+namespace feng
+{
+
+    template < typename T = double >
+    struct grad_info
+    {
+        typedef T value_type;
+        //typedef tri_ary<value_type> array_type;
+        typedef cartesian_coordinate<value_type> array_type;
+
+        array_type node_[20];
+        array_type gauss_pos_[27];
+        array_type result_array_[27];
+    };
+
+}//namespace feng
+
+
+/*
+namespace boost
+{
+    namespace serialization
+    {
+
+        template< typename Archive, typename T>
+        void serialize( Archive& ar, feng::grad_info<T>& g, const unsigned int )
+        {
+            ar& BOOST_SERIALIZATION_NVP(g.node_);
+            ar& BOOST_SERIALIZATION_NVP(g.gauss_pos_);
+            ar& BOOST_SERIALIZATION_NVP(g.result_array_);
+        }
+
+    }//namespace serialization
+}//namespace boost
+*/
+
+#endif//_GRADE_INFO_HPP_INCLUDED_WOINASFO8IU3498AFSLKJ439UIJHAFSDJKL34OIAFLKJ
+
+
