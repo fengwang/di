@@ -17,6 +17,17 @@ namespace reciprocal_metric_tensor_private
     }
 }//namespace reciprocal_metric_tensor_private
 
+#if 0
+                   1  | b^2 c^2 sin^2 a_  abc^2 f(a_,b_,c_)   ab^2c f(g_,a_,b_) |
+        g_a^{*} = ----| abc^2 f(a_,b_,g_) a^2 c^2 sin^2 b_    a^2bc f(b_,g_,a_) |
+                   O  | ab^2c f(g_,a_,b_) a^2 bc f(b_,g_,a_)  a^2 b^2 sin^2 g_  |
+
+        where 
+            O = a^2 b^2 c^2 (1- cos^2 a_ - cos^2 b_ - cos^2 g_ + 2 cos a_ cos b_ cos g_ )
+            f(a_,b_,g_) = cos a_ cos b_ - cos g_
+
+#endif 
+
 template<typename T>
 const matrix<T>
 reciprocal_metric_tensor( const T a, const T b, const T c, const T alpha, const T beta, const T gamma )
