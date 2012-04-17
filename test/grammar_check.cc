@@ -23,16 +23,19 @@ int main()
     std::cout << "It's reciprocal metric tensor:\n";
     std::cout << feng::reciprocal_metric_tensor(a,a,c,alpha,alpha,alpha) << std::endl;
 
-    feng::matrix<double> p(1,3);
-    feng::matrix<double> q(1,3);
+    //feng::matrix<double> p(1,3);
+    //feng::matrix<double> q(1,3);
+    feng::tri_ary<double> p( 1, 2, 0 );
+    feng::tri_ary<double> q( 3, 1, 1 );
 
-
+/*
     p[0][0] = 1;
     p[0][1] = 2;
     p[0][2] = 0;
     q[0][0] = 3;
     q[0][1] = 1;
     q[0][2] = 1;
+*/
 
     auto rmt = feng::reciprocal_metric_tensor(a,a,c,alpha,alpha,alpha);
 

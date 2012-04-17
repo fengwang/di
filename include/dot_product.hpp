@@ -2,6 +2,7 @@
 #define _DOT_PRODUCT_HPP_INCLUDED_OFSIJD98U43TLKAFSJDLSAKFDJSLDKFJFSDLKJFSDALKJSFLKDJSLFDKJVSFOIJSAFOIJSALKIJIOJOII
 
 #include <matrix.hpp>
+#include <tri_ary.hpp>
 
 #include <cassert>
 #include <algorithm>
@@ -15,19 +16,14 @@ namespace feng
    dot(p,q) = p_i q_{i,j} q_j
 
 #endif
-template<typename T>
+template<typename T, std::size_t D, typename A>
 T
-dot_product( const matrix<T>& p, const matrix<T>& q, const matrix<T>& g )
+dot_product( const tri_ary<T>& p, const tri_ary<T>& q, const matrix<T,D,A>& g )
 {
-   assert(1==p.row()); 
-   assert(1==q.row()); 
-   assert(3==p.col());
-   assert(3==q.col());
    assert(3==g.row());
    assert(3==g.col());
 
-   const matrix<T> pg = p*g;
-   return std::inner_product(pg.begin(), pg.end(), q.begin(), T());
+   return ( p * g ) * q;
 }
 
 }//feng

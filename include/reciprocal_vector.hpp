@@ -16,23 +16,19 @@ namespace feng
 
 template<typename T>
 bool
-reciprocal_vector( const matrix<T>& a, const matrix<T>& b, const matrix<T>& c,
-                   matrix<T>& a_,      matrix<T>& b_,      matrix<T>& c_ )
+reciprocal_vector( const tri_ary<T>& a, const tri_ary<T>& b, const tri_ary<T>& c,
+                   tri_ary<T>& a_,      tri_ary<T>& b_,      tri_ary<T>& c_ )
 {
-    assert( 1 == a.row() );
-    assert( 1 == b.row() );
-    assert( 1 == c.row() );
-    assert( 3 == a.col() );
-    assert( 3 == b.col() );
-    assert( 3 == c.col() );
-
-    a_.resize(1,3);
-    b_.resize(1,3);
-    c_.resize(1,3);
-
-    const matrix<T> M = a && 
-                        b && 
-                        c;
+    matrix<T> M(3,3);
+    M[0][0] = a.x();
+    M[0][1] = a.y();
+    M[0][2] = a.z();
+    M[1][0] = b.x();
+    M[1][1] = b.y();
+    M[1][2] = b.z();
+    M[2][0] = c.x();
+    M[2][1] = c.y();
+    M[2][2] = c.z();
     const matrix<T> M_ = M.inverse();
 
     //check if the matrix is inversable
@@ -40,9 +36,15 @@ reciprocal_vector( const matrix<T>& a, const matrix<T>& b, const matrix<T>& c,
         if (isnan(m) || isinf(m))
             return false;
 
-    std::copy(M_.col_begin(0), M_.col_end(0), a_.begin());
-    std::copy(M_.col_begin(1), M_.col_end(1), b_.begin());
-    std::copy(M_.col_begin(2), M_.col_end(2), c_.begin());
+    a_.x() = M_[0][0];
+    a_.y() = M_[1][0];
+    a_.z() = M_[2][0];
+    b_.x() = M_[0][1];
+    b_.y() = M_[1][1];
+    b_.z() = M_[2][1];
+    c_.x() = M_[0][2];
+    c_.y() = M_[1][2];
+    c_.z() = M_[2][2];
 
     return true;
 }

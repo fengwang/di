@@ -2,6 +2,7 @@
 #define _INTERPLANAR_SPACING_HPP_INCLUDED_FSODIJHSAFLDKJ4389IUSFLKJD90843LKFSSFUI4398KLIFSDJKLHVKFSJHO9REWI9483433
 
 #include <matrix.hpp>
+#include <tri_ary.hpp>
 #include <dot_product.hpp>
 
 #include <cmath>
@@ -16,10 +17,9 @@ namespace feng
             Output:
                     the interplanar spacing d_{hkl}
     #endif
-
-    template<typename T>
+    template<typename T, std::size_t D, typename A>
     T
-    interplanar_spacing( const matrix<T>& g, const matrix<T>& g_ )
+    interplanar_spacing( const tri_ary<T>& g, const matrix<T,D,A>& g_ )
     {
         const T gg = dot_product( g, g, g_ );
         return T(1) / std::sqrt(gg);

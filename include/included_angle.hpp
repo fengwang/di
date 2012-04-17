@@ -1,9 +1,9 @@
 #ifndef _INCLUDED_ANGLE_HPP_INCLUDED_OFSIJO48IULFSDKJSDFLKJLSDFKAJSFADLKIJ9438IUELKASDFJASSFDIUJLVKCXJ8IUF98U98FUY
 #define _INCLUDED_ANGLE_HPP_INCLUDED_OFSIJO48IULFSDKJSDFLKJLSDFKAJSFADLKIJ9438IUELKASDFJASSFDIUJLVKCXJ8IUF98U98FUY
 
-#include <matrix.hpp>
-
 #include <dot_product.hpp>
+#include <matrix.hpp>
+#include <tri_ary.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -15,14 +15,11 @@ namespace feng
     theta = cos  (----------)
                  ( |p| |q|  ) 
 #endif
-template<typename T>
+
+template<typename T, std::size_t D, typename A>
 T
-included_angle( const matrix<T>& p, const matrix<T>& q, const matrix<T>& g )
+included_angle( const tri_ary<T>& p, const tri_ary<T>& q, const matrix<T,D,A>& g )
 {
-    assert( 1 == p.row() ); 
-    assert( 1 == q.row() ); 
-    assert( 3 == p.col() );
-    assert( 3 == q.col() );
     assert( 3 == g.row() );
     assert( 3 == g.col() );
 
