@@ -16,93 +16,93 @@
 namespace feng
 {
 
-	/// Template class tri_ary definition.
-	/// @param T item type of template class tri_ary 
+    /// Template class tri_ary definition.
+    /// @param T item type of template class tri_ary 
     template < typename T = double >
     struct tri_ary
     {
 
-			/// @name Public type definition.
+            /// @name Public type definition.
 
-			//@{
+            //@{
 
-			/// Item type, T.
-            typedef T 						value_type;
+            /// Item type, T.
+            typedef T                       value_type;
 
-			/// Self type, tri_ary<T>.
-            typedef tri_ary 				self_type;
+            /// Self type, tri_ary<T>.
+            typedef tri_ary                 self_type;
 
-			/// Lvalue of items, non-const. 
-            typedef value_type&				value_reference;
+            /// Lvalue of items, non-const. 
+            typedef value_type&             value_reference;
 
-			// Const lvalue of items.
-            typedef const value_reference 	const_value_reference;
+            // Const lvalue of items.
+            typedef const value_reference   const_value_reference;
 
-			//@}
+            //@}
 
 
-			/// @name Private items.
+            /// @name Private items.
 
-			//@{
+            //@{
 
-			/// Component in x direction.
+            /// Component in x direction.
             value_type x_;
 
-			/// Component in y direction.
+            /// Component in y direction.
             value_type y_;
 
-			/// Component in z direction.
+            /// Component in z direction.
             value_type z_;
 
-			//@}
+            //@}
 
         
-			/// @name Constructors.
+            /// @name Constructors.
 
-			//@{
+            //@{
 
-			/// Constructor generated from three variables.
-            explicit tri_ary(	const value_type& x = value_type(),
+            /// Constructor generated from three variables.
+            explicit tri_ary(   const value_type& x = value_type(),
                                 const value_type& y = value_type(),
                                 const value_type& z = value_type()
                             ) : x_( x ), y_( y ), z_( z )
             {}
 
-			/// Constructor generated from another tri_ary.
+            /// Constructor generated from another tri_ary.
             tri_ary( const self_type& other ) :
-					x_( other.x_ ),
-					y_( other.y_ ),
-					z_( other.z_ )
+                    x_( other.x_ ),
+                    y_( other.y_ ),
+                    z_( other.z_ )
             {}
 
-			/// Constructor generated from a different type tri_ary.
+            /// Constructor generated from a different type tri_ary.
             template< typename U >
             tri_ary( const tri_ary<U>& other ) :
-					x_( static_cast<value_type>( other.x_ ) ),
-					y_( static_cast<value_type>( other.y_ ) ),
-					z_( static_cast<value_type>( other.z_ )
-					  )
+                    x_( static_cast<value_type>( other.x_ ) ),
+                    y_( static_cast<value_type>( other.y_ ) ),
+                    z_( static_cast<value_type>( other.z_ )
+                      )
             {}
 
-			/// Constructor generated from two cartesian_coordinate positions. 
+            /// Constructor generated from two cartesian_coordinate positions. 
             tri_ary( const cartesian_coordinate<T>& from,
                      const cartesian_coordinate<T>& to )
             {
-				x_ = from.x() - to.x();
-				y_ = from.y() - to.y();
-				z_ = from.z() - to.z();
-			}
+                x_ = from.x() - to.x();
+                y_ = from.y() - to.y();
+                z_ = from.z() - to.z();
+            }
 
-			//@}
-
-
-			/// @name Assignments.
+            //@}
 
 
-			//@{
+            /// @name Assignments.
 
 
-			/// Assignment from another tri_ary.
+            //@{
+
+
+            /// Assignment from another tri_ary.
             self_type&
             operator = ( const self_type& other )
             {
@@ -112,7 +112,7 @@ namespace feng
                 return *this;
             }
 
-			/// Assignment from a different type tri_ary.
+            /// Assignment from a different type tri_ary.
             template< typename U >
             self_type&
             operator = ( const tri_ary<U>& other )
@@ -123,15 +123,15 @@ namespace feng
                 return *this;
             }
 
-			//@}
+            //@}
 
-			
-			/// @name Unary Operators.
+            
+            /// @name Unary Operators.
 
-			//@{
+            //@{
 
-			
-			/// Times by a same type.
+            
+            /// Times by a same type.
             const self_type&
             operator *=( const value_type& v )
             {
@@ -141,7 +141,7 @@ namespace feng
                 return *this;
             }
 
-			/// Times by a differenct type.
+            /// Times by a differenct type.
             template< typename U >
             const self_type&
             operator *=( const U& v )
@@ -152,7 +152,7 @@ namespace feng
                 return *this;
             }
 
-			/// Divides by a same type.
+            /// Divides by a same type.
             const self_type&
             operator /=( const value_type& v )
             {
@@ -162,7 +162,7 @@ namespace feng
                 return *this;
             }
 
-			/// Divides by a different type.
+            /// Divides by a different type.
             template< typename U >
             const self_type&
             operator /=( const U& v )
@@ -174,8 +174,8 @@ namespace feng
             }
 
 
-			/// Plus by another tri_ary.
-			/// Implicit conversition allowed.
+            /// Plus by another tri_ary.
+            /// Implicit conversition allowed.
             const self_type&
             operator += ( const self_type& other )
             {
@@ -185,8 +185,8 @@ namespace feng
                 return *this;
             }
 
-			/// Minus by another tri_ary.
-			/// Implicit conversition allowed.
+            /// Minus by another tri_ary.
+            /// Implicit conversition allowed.
             const self_type&
             operator -= ( const self_type& other )
             {
@@ -197,51 +197,51 @@ namespace feng
             }
 
 
-			//@}
+            //@}
 
         
 
 
-			/// @name Item access.
+            /// @name Item access.
 
-			//@{
+            //@{
 
-			/// Access to x direction Component, non-const.
+            /// Access to x direction Component, non-const.
             value_reference
             x()
             {
                 return x_;
             }
 
-			/// Access to y direction Component, non-const.
+            /// Access to y direction Component, non-const.
             value_reference
             y()
             {
                 return y_;
             }
 
-			/// Access to z direction Component, non-const.
+            /// Access to z direction Component, non-const.
             value_reference
             z()
             {
                 return z_;
             }
 
-			/// Access to x direction Component, const.
+            /// Access to x direction Component, const.
             value_type
             x() const
             {
                 return x_;
             }
 
-			/// Access to y direction Component, const.
+            /// Access to y direction Component, const.
             value_type
             y() const
             {
                 return y_;
             }
 
-			/// Access to z direction Component, const.
+            /// Access to z direction Component, const.
             value_type
             z() const
             {
@@ -249,23 +249,23 @@ namespace feng
             }
 
 
-			//@}
+            //@}
 
 
-			/// @name Functions.
+            /// @name Functions.
 
 
-			//@{
+            //@{
 
-			/// Return Euclidean distance.
+            /// Return Euclidean distance.
             value_type
             norm() const
             {
-				const value_type m = std::max( 	x_,
-												std::max(y_, z_)
-											);
-				if ( value_type() == m )
-					return m;
+                const value_type m = std::max(  x_,
+                                                std::max(y_, z_)
+                                            );
+                if ( value_type() == m )
+                    return m;
 
 
                 const value_type  x = x_ / m;
@@ -276,7 +276,7 @@ namespace feng
                 return ans > value_type() ? ans : -ans;
             }
 
-			/// Return unit tri_ary.
+            /// Return unit tri_ary.
             const self_type
             to_unit() const
             {
@@ -304,13 +304,13 @@ namespace feng
             }
 
 
-			//@}
+            //@}
     };
 
 
-	/// @name binary-operato overloadings
+    /// @name binary-operato overloadings
 
-	//@{
+    //@{
 
     /// Overload operator +.
     template< typename T >
@@ -374,20 +374,20 @@ namespace feng
     bool
     operator == ( const tri_ary<T>& lhs, const tri_ary<T>& rhs )
     {
-        return	( lhs.x() == rhs.x() ) &&
+        return  ( lhs.x() == rhs.x() ) &&
                 ( lhs.y() == rhs.y() ) &&
                 ( lhs.z() == rhs.z() );
     }
 
 
-	//@}
+    //@}
 
-	/// @name Numerical Methods.
+    /// @name Numerical Methods.
 
-	//@{
+    //@{
 
 
-	/// Dot product.
+    /// Dot product.
     template<typename T>
     inline
     T
@@ -400,7 +400,7 @@ namespace feng
         return ans;
     }
 
-	/// Inner Product.
+    /// Inner Product.
     template<typename T>
     inline
     T
@@ -409,7 +409,7 @@ namespace feng
         return dot_product( lhs, rhs );
     }
 
-	/// Scalar Product.
+    /// Scalar Product.
     template<typename T>
     inline
     T
@@ -418,7 +418,7 @@ namespace feng
         return dot_product( lhs, rhs );
     }
 
-	/// Cross Product.
+    /// Cross Product.
     template<typename T>
     inline
     const tri_ary<T>
@@ -431,7 +431,7 @@ namespace feng
         return ans;
     }
 
-	/// Included angle 
+    /// Included angle 
     template<typename T>
     inline
     T
@@ -520,7 +520,7 @@ namespace feng
         return dot_product( lhs, rhs );
     }
 
-	//@}
+    //@}
 
 }//namespace feng
 
