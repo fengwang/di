@@ -4,6 +4,8 @@
 #include <dot_product.hpp>
 #include <included_angle.hpp>
 #include <delta.hpp>
+#include <miller.hpp>
+#include <volume.hpp>
 #include <reciprocal_vector.hpp>
 #include <reciprocal_metric_tensor.hpp>
 #include <interplanar_spacing.hpp>
@@ -28,19 +30,15 @@ int main()
     feng::tri_ary<double> p( 1, 2, 0 );
     feng::tri_ary<double> q( 3, 1, 1 );
 
-/*
-    p[0][0] = 1;
-    p[0][1] = 2;
-    p[0][2] = 0;
-    q[0][0] = 3;
-    q[0][1] = 1;
-    q[0][2] = 1;
-*/
-
     auto rmt = feng::reciprocal_metric_tensor(a,a,c,alpha,alpha,alpha);
 
     auto theta = feng::included_angle( p, q, rmt );
     std::cout << "included angle of " << p << " and " << q << " is " << theta << "\n";
+
+    feng::tri_ary<double> t1(1,1,0);
+    feng::tri_ary<double> t2(1,1,1);
+
+    std::cout << t1 << " X " << t2 << feng::cross_product( t1, t2 )  << "\n";
 
 
     return 0;
