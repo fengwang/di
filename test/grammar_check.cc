@@ -1,14 +1,6 @@
 #include <iostream>
 
-#include <direct_metric_tensor.hpp>
-#include <dot_product.hpp>
-#include <included_angle.hpp>
-#include <delta.hpp>
-#include <miller.hpp>
-#include <volume.hpp>
-#include <reciprocal_vector.hpp>
-#include <reciprocal_metric_tensor.hpp>
-#include <interplanar_spacing.hpp>
+#include <misc.hpp>
 
 void f(){}
 
@@ -39,6 +31,9 @@ int main()
     feng::tri_ary<double> t2(1,1,1);
 
     std::cout << t1 << " X " << t2 << feng::cross_product( t1, t2 )  << "\n";
+
+    std::cout << "\ndirect structure matrix is:" << feng::direct_structure_matrix(a,a,c,alpha,alpha,alpha);
+    std::cout << "\nreciprocal structure matrix is:" << feng::reciprocal_structure_matrix(a,a,c,alpha,alpha,alpha);
 
 
     return 0;

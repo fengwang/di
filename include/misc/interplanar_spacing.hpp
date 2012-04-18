@@ -3,7 +3,7 @@
 
 #include <matrix.hpp>
 #include <tri_ary.hpp>
-#include <dot_product.hpp>
+#include <misc/dot_product.hpp>
 
 #include <cmath>
 
