@@ -3,10 +3,12 @@
 
 #include <matrix.hpp>
 
-#include <cmath>
+//#include <cmath>
+#include <misc/direct_metric_tensor.hpp>
 
 namespace feng
 {
+#if 0
 namespace reciprocal_metric_tensor_private
 {
     template<typename T>
@@ -16,6 +18,7 @@ namespace reciprocal_metric_tensor_private
         return cosalpha * cosbeta - cosgamma;
     }
 }//namespace reciprocal_metric_tensor_private
+#endif
 
 #if 0
                    1  | b^2 c^2 sin^2 a_  abc^2 f(a_,b_,c_)   ab^2c f(g_,a_,b_) |
@@ -27,7 +30,7 @@ namespace reciprocal_metric_tensor_private
             f(a_,b_,g_) = cos a_ cos b_ - cos g_
 
 #endif 
-
+#if 0
 template<typename T>
 const matrix<T>
 reciprocal_metric_tensor( const T a, const T b, const T c, const T alpha, const T beta, const T gamma )
@@ -61,7 +64,13 @@ reciprocal_metric_tensor( const T a, const T b, const T c, const T alpha, const 
 
     return ans;
 }
-
+#endif
+template<typename T>
+const matrix<T>
+reciprocal_metric_tensor( const T a, const T b, const T c, const T alpha, const T beta, const T gamma )
+{
+    return direct_metric_tensor(a,b,c,alpha,beta,gamma).inverse();    
+}
 }//namespace feng
 
 #endif//_RECIPROCAL_METRIC_TENSOR_HPP_INCLUDED_DFOSIJEOIUSDFLKJALDFOI4ELKJDLKJFSAINTOSOIJTLKASOFIDJ3LKIJHSFALKJFDL

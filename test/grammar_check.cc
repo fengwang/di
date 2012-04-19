@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <misc.hpp>
+#include <crystal.hpp>
 
 void f(){}
 
@@ -34,6 +35,11 @@ int main()
 
     std::cout << "\ndirect structure matrix is:" << feng::direct_structure_matrix(a,a,c,alpha,alpha,alpha);
     std::cout << "\nreciprocal structure matrix is:" << feng::reciprocal_structure_matrix(a,a,c,alpha,alpha,alpha);
+
+    feng::crystal<double> C(a,a,c,alpha,alpha,alpha);
+    feng::tri_ary<double> t3(2,3,1);
+
+    std::cout << "\ndirect components of vector " << t3 << " is " << C.direct_to_cartesian(t3) << "\n";
 
 
     return 0;

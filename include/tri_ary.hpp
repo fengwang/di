@@ -505,8 +505,8 @@ namespace feng
     const tri_ary<T>
     operator * ( const matrix<T,N,A>& lhs, const tri_ary<T>& rhs )
     {
-        assert( 3 == rhs.row() );
-        assert( 3 == rhs.col() );
+        assert( 3 == lhs.row() );
+        assert( 3 == lhs.col() );
         return tri_ary<T>(  lhs[0][0] * rhs.x() + lhs[0][1] * rhs.y() + lhs[0][2] * rhs.z(),    
                             lhs[1][0] * rhs.x() + lhs[1][1] * rhs.y() + lhs[1][2] * rhs.z(),    
                             lhs[2][0] * rhs.x() + lhs[2][1] * rhs.y() + lhs[2][2] * rhs.z() );
