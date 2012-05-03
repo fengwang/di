@@ -38,8 +38,22 @@ int main()
 
     feng::crystal<double> C(a,a,c,alpha,alpha,alpha);
     feng::tri_ary<double> t3(2,3,1);
-
     std::cout << "\ndirect components of vector " << t3 << " is " << C.direct_to_cartesian(t3) << "\n";
+    feng::tri_ary<double> t4(2,2,1);
+    std::cout << "\ncartesian components of vector " << t4 << " is " << C.cartesian_to_reciprocal(t4) << "\n";
+    std::cout << "\nreciprocal components of vector " << t4 << " is " << C.reciprocal_to_cartesian(t4) << "\n";
+
+    feng::crystal<long double> C_Al( 0.4049, 0.4049, 0.4049, alpha, alpha, alpha );
+    feng::tri_ary<long double> g220(2,2,0);
+    std::cout << "\nreciprocal space length of " << g220 << " is " << C_Al.reciprocal_space_length(g220);
+
+    feng::crystal<long double> C_Si( 5.43, 5.43, 5.43, pi/2.0, pi/2.0, pi/2.0 );
+    std::cout << "\nThe direct metric tensor matrix of Si is \n" << C_Si.direct_metric_tensor() << "\n";
+    std::cout << "\nThe reciprocal metric tensor matrix of Si is \n" << C_Si.reciprocal_metric_tensor() << "\n";
+    std::cout << "\nThe reciprocal structure matrix of Si is \n" << C_Si.reciprocal_structure_matrix() << "\n";
+
+
+
 
 
     return 0;

@@ -12,6 +12,7 @@
 #include<misc/reciprocal_structure_matrix.hpp>
 #include<misc/reciprocal_vector.hpp>
 #include<misc/volume.hpp>
+#include<misc/wavelength.hpp>
 
 #endif//_MISC_HPP_INCLUDED_SFDOIJ43908UASFLKJ9O48ULKASDFJHSAFJKDNCSOIUFJ498SFKKSFJSKKINTOTHELIW983LKJSFDKLVKJHFDD
 

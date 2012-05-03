@@ -1,8 +1,8 @@
 ####### Compiler, tools and options
-CXX           = g++-4.8
-DEFINES       = -Wall 
+CXX           = g++
+DEFINES       = -Wall  
 INCPATH       = -Iinclude  -I/home/feng/include
-LINK          = g++-4.8
+LINK          = g++
 LFLAGS        = 
 DEL_FILE      = rm -f
 DEL_DIR       = rmdir

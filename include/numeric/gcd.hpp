@@ -7,6 +7,7 @@
 namespace feng
 {
 
+    // greatest common divider
     template<typename T = unsigned long long>
     T gcd ( T u, T v )
     {

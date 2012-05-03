@@ -93,6 +93,8 @@ namespace feng
                 z_ = from.z() - to.z();
             }
 
+            tri_ary( self_type&& ) = default;
+
             //@}
 
 
@@ -122,6 +124,9 @@ namespace feng
                 z_ = static_cast<value_type>( other.z_ );
                 return *this;
             }
+
+            self_type&
+            operator = ( self_type&& ) = default;
 
             //@}
 
