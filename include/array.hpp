@@ -33,6 +33,11 @@ namespace feng
             return m * std::sqrt(x*x +y*y +z*z);
         }
 
+        const self_type operator - () const 
+        {
+            return self_type(-(*this)[0], -(*this)[1], -(*this)[2]);
+        }
+
         friend std::ostream& operator << ( std::ostream& os, const self_type& self )
         {
             return os << " ("  << self[0] << ", "
@@ -45,9 +50,9 @@ namespace feng
         {
             assert( 3 == lhs.row() );
             assert( 3 == lhs.col() );
-            return self_type(   std::inner_product( lhs.row_begin(0), lhs.row_end(0), rhs.begin() ),
-                                std::inner_product( lhs.row_begin(1), lhs.row_end(1), rhs.begin() ),
-                                std::inner_product( lhs.row_begin(2), lhs.row_end(2), rhs.begin() ));
+            return self_type(   std::inner_product( lhs.row_begin(0), lhs.row_end(0), rhs.begin(), value_type() ),
+                                std::inner_product( lhs.row_begin(1), lhs.row_end(1), rhs.begin(), value_type() ),
+                                std::inner_product( lhs.row_begin(2), lhs.row_end(2), rhs.begin(), value_type() ));
         }
 
         template<std::size_t D, typename A>
@@ -55,9 +60,9 @@ namespace feng
         {
             assert( 3 == rhs.row() ); 
             assert( 3 == rhs.col() ); 
-            return self_type (  std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(0) ),
-                                std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(1) ),
-                                std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(2) ));
+            return self_type (  std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(0), value_type() ),
+                                std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(1), value_type() ),
+                                std::inner_product( lhs.begin(), lhs.end(), rhs.col_begin(2), value_type() ));
         }
         
         friend const self_type operator + ( const self_type& lhs, const self_type rhs )

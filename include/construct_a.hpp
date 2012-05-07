@@ -11,18 +11,22 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+#include <complex>
+#include <iostream>
 
 namespace feng
 {
     template<typename T = double>
     struct construct_a
     {
-        typedef std::size_t         size_type;
-        typedef T                   value_type; 
-        typedef array<value_type>   array_type;
-        typedef matrix<value_type>  matrix_type;
-        typedef construct_a         self_type;
-        typedef lattice<value_type> lattice_type;
+        typedef std::size_t                     size_type;
+        typedef T                               value_type; 
+        typedef std::complex<value_type>        complex_type; 
+        typedef array<value_type>               array_type;
+        typedef matrix<value_type>              matrix_type;
+        typedef matrix<complex_type>            complex_matrix_type;
+        typedef construct_a                     self_type;
+        typedef lattice<value_type>             lattice_type;
 
         array_type      kt;
         array_type      zone;
@@ -41,6 +45,15 @@ namespace feng
                      kt(kt_), zone(zone_), gx(gx_), v0(v0_), la(la_)
         {}
 
+        construct_a()
+        {
+            kt      = array_type{0, 0, 0};
+            zone    = array_type{1, 1, 0};
+            gx      = array_type{0, 0, 1};
+            v0      = 200.0;
+            la      = lattice_type{5.43, 5.43, 5.43, 1.5707963268, 1.5707963268, 1.5707963268 };
+        }
+
         const array_type make_gyvec() const 
         {
             return cross_product(zone, gx);
@@ -48,7 +61,18 @@ namespace feng
 
         const matrix_type make_matrix() const 
         {
-            returnn ::make_matrix(la);
+            const T a = la.a;
+            const T b = la.b;
+            const T c = la.c;
+            const T ca = std::cos(la.alpha);
+            const T cb = std::cos(la.beta);
+            const T cg = std::cos(la.gamma);
+            const T sg = std::sin(la.gamma);
+            matrix<T> A(3, 3);
+            A[0][0] = a;    A[0][1] = 0;                A[0][2] = 0;
+            A[1][0] = b*cg; A[1][1] = b*sg;             A[1][2] = 0;
+            A[2][0] = c*cb; A[2][1] = c*(ca-cb*cg)/sg;  A[2][2] = c * std::sqrt(T(1)-ca*ca-cb*cb-cg*cg+T(2)*ca*cb*cg) / sg;
+            return A;
         }
 
         const matrix_type make_reverse_matrix() const 
@@ -94,33 +118,32 @@ namespace feng
             auto const By = make_beamy_max();
             auto const gy = make_gyvec();
             
-            make_gyvec tbeams{Bx*By+Bx+By, 5};
+            matrix_type tbeams{Bx*By+Bx+By, 5};
             size_type index = 0;
-            for(size_type i = 0; i != Bx+1; ++i )
-                for(size_type j = 0; j != By+1; ++j )
+            for(size_type j = 0; j != By+1; ++j )
+                for(size_type i = 0; i != Bx+1; ++i )
                 {
                    if ( 0 == i && 0 == j ) continue;
                    tbeams[index][3] = i;
                    tbeams[index][4] = j;
-                   auto const vec = -i*gx -j*gy;
+                   auto const vec = -(i*gx) - (j*gy);
                    std::copy( vec.begin(), vec.end(), tbeams.row_begin(index++) );
                 }
 
             return tbeams;
         }
 
-        const matrix_type gaussian_electron( const matrix_type&/*z*/,
-                                             const matrix_type& s,
-                                             const value_type v
-                                           ) const 
+        const matrix_type make_gaussian_electron( const matrix_type& s,
+                                                  const value_type v
+                                                ) const 
         {
-            const value_type* const A = {0.3626, 0.9737, 2.7209, 1.7660};
-            const value_type* const B = {0.4281, 3.5770, 19.3905, 64.3334};
-            const value_type        D = 0.0044;
+            //const value_type        D = 0.0044;
             auto ans = s;
             auto const factor = v/value_type(511) + value_type(1);
-            std::for_each( ans.begin(), ans.end(), [A,B,factor] (value_type& s_)
+            std::for_each( ans.begin(), ans.end(), [factor] (value_type& s_)
                            {
+                                const value_type A[] = {0.3626, 0.9737, 2.7209, 1.7660};
+                                const value_type B[] = {0.4281, 3.5770, 19.3905, 64.3334};
                                 value_type tmp[4];
                                 std::fill(tmp, tmp+4, value_type());
                                 auto const ss = s_ * s_;
@@ -128,32 +151,74 @@ namespace feng
                                 s_ = factor * std::inner_product(A, A+4, tmp, value_type());
                            }
                           );
+            ans = ans && ans;
+            ans = ans && ans;
+            ans = ans && ans;
+
             return ans;
         }
 
-        const matrix_type calc_ug(const matrix_type& g, //reciprocal lattice vector matrix
-                                  const matrix_type& M, //
-                                  const matrix_type& Z, //Z number matrix
-                                  const matrix_type& A, //Atomic position matrix
-                                  const matrix_type& D, //list of corresponding DW factor
-                                  const value_type   v  //acceleration voltage
-                                 )const
+        const complex_matrix_type make_ug(const matrix_type& g, //reciprocal lattice vector matrix
+                                          const matrix_type& M, //
+                                          const matrix_type& A, //Atomic position matrix
+                                          const matrix_type& D //list of corresponding DW factor
+                                         )const
         {
             assert( 3 == M.row() );
             assert( 3 == M.col() );
             auto const R = M.inverse();
-            auto const S = g*R;             
+            matrix_type const G(g, range(0, g.row()), range(0, 3));
+            auto const S = G*R;             
             auto const r = S.row();
             std::vector<value_type> gr( r );
             matrix_type s( 1, r );
             for ( size_type i = 0; i < r; ++ i )
                 s[0][i] = value_type(0.5) * std::sqrt(std::inner_product(S.row_begin(i), S.row_end(i), S.row_begin(i), value_type(0)));
-            auto const omega = feng::inner_product( array_type(M[0][0], M[1][0], M[2][0]),
-                               feng::cross_product( array_type(M[0][1], M[1][1], M[2][1]), 
-                                                    array_type(M[0][2], M[1][2], M[2][2])) );
-            auto const atomcellfacte = gaussian_electron(Z, s, v);
+            auto const piomega =    3.141592553590 * feng::inner_product( array_type(M[0][0], M[1][0], M[2][0]),
+                                                     feng::cross_product( array_type(M[0][1], M[1][1], M[2][1]), 
+                                                                          array_type(M[0][2], M[1][2], M[2][2])) );
+            auto const atomcellfacte = make_gaussian_electron(s, v0);
+
+            auto ss = s;
+            std::for_each(ss.begin(), ss.end(), [](value_type& v){v*=v;});
+            complex_matrix_type dwss = D * ss;
+            complex_matrix_type piag = A * G.transpose();
+            auto fact = - dwss - piag * complex_type(0, 6.2831853071796);
+            std::for_each(fact.begin(), fact.end(), [](complex_type& c){c=std::exp(c);});
+
+            std::cout << fact.row() << std::endl;
+            std::cout << fact.col() << std::endl;
+
+            assert(fact.row() == atomcellfacte.row());
+            assert(fact.col() == atomcellfacte.col());
+            std::transform(fact.begin(), fact.end(), atomcellfacte.begin(), fact.begin(),
+                           [piomega](const complex_type f,  const value_type a){return f*a/piomega;});
+
+            complex_matrix_type Ug(fact.col(), 1);
+            for ( size_type i = 0; i < fact.col(); ++i )
+                Ug[i][0] = std::accumulate(fact.col_begin(i), fact.col_end(i), complex_type());
+
+            return Ug;
         }
 
+        const matrix_type make_dw_factor() const 
+        {
+            matrix_type m(8,1);
+            std::fill(m.begin(), m.end(), 0.0044);
+            return m;
+        }
+
+        const matrix_type make_atomic_positions() const 
+        {
+            const value_type pos_x[] = {-0.125, -0.125, 0.375, 0.375, 0.125, 0.125, 0.625, 0.625};
+            const value_type pos_y[] = {-0.125, 0.375, -0.125, 0.375, 0.125, 0.625, 0.125, 0.625};
+            const value_type pos_z[] = { -0.25,  0.25,   0.25, -0.25,   0.0,   0.5,   0.5, 0.0};
+            matrix_type m(8,3);
+            std::copy( pos_x, pos_x+8, m.col_begin(0) );
+            std::copy( pos_y, pos_y+8, m.col_begin(1) );
+            std::copy( pos_z, pos_z+8, m.col_begin(2) );
+            return m;
+        }
 
 
 
