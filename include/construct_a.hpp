@@ -12,6 +12,9 @@
 #include <algorithm>
 #include <numeric>
 #include <complex>
+#include <vector>
+#include <iterator>
+
 #include <iostream>
 
 namespace feng
@@ -112,7 +115,7 @@ namespace feng
             return std::ceil(gmax/nr);
         }
 
-        const matrix_type make_tbeam() const 
+        const matrix_type make_tbeams() const 
         {
             auto const Bx = make_beamx_max();
             auto const By = make_beamy_max();
@@ -221,6 +224,60 @@ namespace feng
         }
 
 
+        struct complex_size
+        {
+            complex_type c;
+            size_type    s;
+            complex_size( const complex_type& c_ = complex_type(0,0), const size_type s_ = size_type(0) ) : 
+                c(c_), s(s_) {}
+            friend std::ostream& operator << ( std::ostream& os, const complex_size& cs )
+            {
+                return os << cs.c << " : " << std::abs(cs.c) << " - " << cs.s;
+            }
+        };//complex_size
+        
+        const matrix_type make_beams(const matrix_type& tbeams, const complex_matrix_type& Ug) const
+        {
+            assert( tbeams.row() == Ug.row() );
+            assert( tbeams.col() == 5 );
+            assert( Ug.col() == 1 );
+            
+            std::vector<complex_size> m( tbeams.row() );
+            for ( size_type i = 0; i < m.size(); ++i )
+                m[i] = complex_size(Ug[i][0], i);
+            std::sort( m.begin(), m.end(), [](const complex_size& lhs, const complex_size& rhs){ return std::abs(lhs.c) >= std::abs(rhs.c);} );
+
+            std::copy( m.begin(), m.end(), std::ostream_iterator<complex_size>( std::cout, "\n" ) );
+
+            matrix_type beams{1, 3};
+            auto const gy = make_gyvec();
+            for ( size_type i = 0; i < m.size(); ++i )
+            {
+                const int ix = tbeams[m[i].s][3];
+                const int iy = tbeams[m[i].s][4];
+                if ( ix )
+                {
+                    matrix_type b{2,3};
+                    array_type const b0 = ix * gx + iy * gy;
+                    array_type const b1 = - b0;
+                    b[0][0] = b0[0]; b[0][1] = b0[1]; b[0][2] = b0[2];
+                    b[1][0] = b1[0]; b[1][1] = b1[1]; b[1][2] = b1[2];
+                    beams  = beams && b;
+                }
+                if ( iy )
+                {
+                    matrix_type b{2,3};
+                    array_type const b0 = - ix * gx + iy * gy;
+                    array_type const b1 = - b0;
+                    b[0][0] = b0[0]; b[0][1] = b0[1]; b[0][2] = b0[2];
+                    b[1][0] = b1[0]; b[1][1] = b1[1]; b[1][2] = b1[2];
+                    beams  = beams && b;
+                }
+            }
+
+            return beams;
+        }
+        
 
         
 
