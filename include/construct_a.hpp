@@ -189,9 +189,6 @@ namespace feng
             auto fact = - dwss - piag * complex_type(0, 6.2831853071796);
             std::for_each(fact.begin(), fact.end(), [](complex_type& c){c=std::exp(c);});
 
-            std::cout << fact.row() << std::endl;
-            std::cout << fact.col() << std::endl;
-
             assert(fact.row() == atomcellfacte.row());
             assert(fact.col() == atomcellfacte.col());
             std::transform(fact.begin(), fact.end(), atomcellfacte.begin(), fact.begin(),
@@ -223,7 +220,6 @@ namespace feng
             return m;
         }
 
-
         struct complex_size
         {
             complex_type c;
@@ -247,17 +243,15 @@ namespace feng
                 m[i] = complex_size(Ug[i][0], i);
             std::sort( m.begin(), m.end(), [](const complex_size& lhs, const complex_size& rhs){ return std::abs(lhs.c) >= std::abs(rhs.c);} );
 
-            std::copy( m.begin(), m.end(), std::ostream_iterator<complex_size>( std::cout, "\n" ) );
-
             matrix_type beams{1, 3};
             auto const gy = make_gyvec();
             for ( size_type i = 0; i < m.size(); ++i )
             {
                 const int ix = tbeams[m[i].s][3];
                 const int iy = tbeams[m[i].s][4];
+                matrix_type b{2,3};
                 if ( ix )
                 {
-                    matrix_type b{2,3};
                     array_type const b0 = ix * gx + iy * gy;
                     array_type const b1 = - b0;
                     b[0][0] = b0[0]; b[0][1] = b0[1]; b[0][2] = b0[2];
@@ -266,7 +260,6 @@ namespace feng
                 }
                 if ( iy )
                 {
-                    matrix_type b{2,3};
                     array_type const b0 = - ix * gx + iy * gy;
                     array_type const b1 = - b0;
                     b[0][0] = b0[0]; b[0][1] = b0[1]; b[0][2] = b0[2];
@@ -277,7 +270,96 @@ namespace feng
 
             return beams;
         }
-        
+       
+        const matrix_type  make_gd( const matrix_type& beams ) const 
+        {
+            matrix_type gd{beams.row(), beams.col()};
+            auto const nm = beams.row() >> 1;
+            for ( size_t i = 1; i <= nm; ++i )
+            {
+                std::copy( beams.row_begin(i+i-1), beams.row_end(i+i-1), gd.row_begin(nm+i) );
+                std::copy( beams.row_begin(i+i), beams.row_end(i+i), gd.row_begin(nm-i) );
+            }
+            return gd;
+        }
+       
+        const matrix_type make_unique_beams( const matrix_type& gd ) const 
+        {
+            assert( gd.col() == 3 );
+            auto const N = gd.row();
+            //make  gm
+            const matrix_type gd0{ gd, range(0, N), range(0, 1) };
+            const matrix_type gd1{ gd, range(0, N), range(1, 2) };
+            const matrix_type gd2{ gd, range(0, N), range(2, 3) };
+
+            auto Gm0 = repmat(gd0, 1, N) - repmat(gd0.transpose(), N, 1);
+            auto Gm1 = repmat(gd1, 1, N) - repmat(gd1.transpose(), N, 1);
+            auto Gm2 = repmat(gd2, 1, N) - repmat(gd2.transpose(), N, 1);
+
+            for ( size_type i = 0; i != N; ++i )
+            {
+                Gm0[i][i] = gd[i][0];
+                Gm1[i][i] = gd[i][1];
+                Gm2[i][i] = gd[i][2];
+            }
+            //!!Gm[][][] not verified
+
+            array_type vec( Gm0[0][1], Gm1[0][1], Gm2[0][1] );
+            auto const gy = make_gyvec();
+            matrix_type bArray( 1, 7 );
+            bArray[0][0] = 1;
+            bArray[0][1] = 2;
+            bArray[0][2] = inner_product(vec, gx);
+            bArray[0][3] = inner_product(vec, gy);
+            bArray[0][4] = Gm0[0][1];
+            bArray[0][5] = Gm1[0][1];
+            bArray[0][6] = Gm1[0][1];
+
+            //one more row than matlab version, need checking
+            matrix_type bArray_( 1, 7 );
+            for ( size_type h = 0; h != N; ++h )
+            {
+                for ( size_type k = 0; k != N-h+1; ++k )
+                {
+                    if ( k == h ) continue;
+
+                    vec[0] = Gm0[h][k];
+                    vec[1] = Gm1[h][k];
+                    vec[2] = Gm2[h][k];
+                    
+                    bool flag = false;
+                    for ( size_type j = 0; j != bArray.row(); ++j  )
+                        if ( vec == array_type{bArray[j][4], bArray[j][5], bArray[j][6]})
+                        {
+                            flag = true; break;
+                        }
+
+                    if (flag) continue;
+                    bArray_[0][0] =h+1;
+                    bArray_[0][1] =k+1;
+                    bArray_[0][2] =inner_product(vec, gx);
+                    bArray_[0][3] =inner_product(vec, gy);
+                    bArray_[0][4] =Gm0[h][k];
+                    bArray_[0][5] =Gm1[h][k];
+                    bArray_[0][6] =Gm2[h][k];
+                    bArray = bArray && bArray_;
+                }//k loop
+            }//h loop
+
+            return bArray;
+        }
+
+        const complex_matrix_type make_ug( const matrix_type& bArray ) const 
+        {
+            auto const g = matrix_type{bArray, range{0, bArray.row()}, range{4,7}};
+            auto const R = make_matrix();
+            auto const A = make_atomic_positions();
+            auto const D = make_dw_factor();
+            return make_ug( g, R, A, D );
+        }
+
+
+
 
         
 
