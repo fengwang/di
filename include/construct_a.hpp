@@ -226,10 +226,6 @@ namespace feng
             size_type    s;
             complex_size( const complex_type& c_ = complex_type(0,0), const size_type s_ = size_type(0) ) : 
                 c(c_), s(s_) {}
-            friend std::ostream& operator << ( std::ostream& os, const complex_size& cs )
-            {
-                return os << cs.c << " : " << std::abs(cs.c) << " - " << cs.s;
-            }
         };//complex_size
         
         const matrix_type make_beams(const matrix_type& tbeams, const complex_matrix_type& Ug) const
@@ -283,26 +279,30 @@ namespace feng
             return gd;
         }
        
-        const matrix_type make_unique_beams( const matrix_type& gd ) const 
+        void make_gm( const matrix_type& gd, matrix_type& Gm0, 
+                      matrix_type& Gm1, matrix_type& Gm2) const 
         {
             assert( gd.col() == 3 );
             auto const N = gd.row();
-            //make  gm
             const matrix_type gd0{ gd, range(0, N), range(0, 1) };
             const matrix_type gd1{ gd, range(0, N), range(1, 2) };
             const matrix_type gd2{ gd, range(0, N), range(2, 3) };
 
-            auto Gm0 = repmat(gd0, 1, N) - repmat(gd0.transpose(), N, 1);
-            auto Gm1 = repmat(gd1, 1, N) - repmat(gd1.transpose(), N, 1);
-            auto Gm2 = repmat(gd2, 1, N) - repmat(gd2.transpose(), N, 1);
+            Gm0 = repmat(gd0, 1, N) - repmat(gd0.transpose(), N, 1);
+            Gm1 = repmat(gd1, 1, N) - repmat(gd1.transpose(), N, 1);
+            Gm2 = repmat(gd2, 1, N) - repmat(gd2.transpose(), N, 1);
 
-            for ( size_type i = 0; i != N; ++i )
-            {
-                Gm0[i][i] = gd[i][0];
-                Gm1[i][i] = gd[i][1];
-                Gm2[i][i] = gd[i][2];
-            }
-            //!!Gm[][][] not verified
+            std::copy( gd.col_begin(0), gd.col_end(0), Gm0.diag_begin() );
+            std::copy( gd.col_begin(1), gd.col_end(1), Gm1.diag_begin() );
+            std::copy( gd.col_begin(2), gd.col_end(2), Gm2.diag_begin() );
+        }
+       
+        const matrix_type make_unique_beams( const matrix_type& Gm0,
+                                             const matrix_type& Gm1,
+                                             const matrix_type& Gm2
+                                           ) const 
+        {
+            auto const N = Gm0.row();
 
             array_type vec( Gm0[0][1], Gm1[0][1], Gm2[0][1] );
             auto const gy = make_gyvec();
@@ -358,38 +358,10 @@ namespace feng
             return make_ug( g, R, A, D );
         }
 
-
-
-
+        const complex_matrix_type operator ()() const 
+        {
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }
 
     };//sturct construct_a
 
