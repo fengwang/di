@@ -17,6 +17,14 @@ namespace feng
         typedef T               value_type;
         typedef array           self_type;
 
+        value_type x() const { return (*this)[0]; }
+        value_type y() const { return (*this)[1]; }
+        value_type z() const { return (*this)[2]; }
+
+        value_type& x() { return (*this)[0]; }
+        value_type& y() { return (*this)[1]; }
+        value_type& z() { return (*this)[2]; }
+
         explicit array ( const value_type a = 0, const value_type b = 0, const value_type c = 0 )
         {
             (*this)[0] = a; (*this)[1] = b; (*this)[2] = c;
