@@ -172,8 +172,6 @@ namespace feng
                     }
                 }
 
-            std::copy( beams.begin(), beams.end(), std::ostream_iterator<array_type>(std::cout, "\n") );
-
             return beams;
         }
 
@@ -204,7 +202,8 @@ namespace feng
                 std::fill(gc.col_begin(i), gc.col_end(i), gd[i]);
             }
             auto gm = gr - gc;
-            std::copy( gd.begin(), gd.end(), gm.diag_begin() );
+            //std::copy( gd.begin(), gd.end(), gm.diag_begin() );
+            std::fill( gm.diag_begin(), gm.diag_end(), gm[0][1] );
 
             return gm; 
         }

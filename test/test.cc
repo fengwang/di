@@ -35,7 +35,7 @@ int main()
     //auto const ubeams = ca.make_unique_beams( gm0, gm1, gm2  );
     auto const ubeams = ca.make_unique_beams( gm  );
     //std::cout << ca.make_ug( ubeams );
-    //std::cout << ubeams;
+    std::copy( ubeams.begin(), ubeams.end(), std::ostream_iterator<construct_a<double>::array_type>(std::cout, "\n" ));
 
     return 0;
 }
