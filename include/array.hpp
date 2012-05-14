@@ -8,6 +8,8 @@
 
 #include <matrix.hpp>
 
+#include <iostream>
+
 namespace feng
 {
 
@@ -48,9 +50,12 @@ namespace feng
 
         friend std::ostream& operator << ( std::ostream& os, const self_type& self )
         {
-            return os << " ("  << self[0] << ", "
-                               << self[1] << ", "
-                               << self[2] << ") " ;
+            return os <<          self[0] << " "
+                               << self[1] << " "
+                               << self[2];
+            //return os << " ("  << self[0] << ", "
+            //                   << self[1] << ", "
+            //                   << self[2] << ") " ;
         }
 
         template<std::size_t D, typename A>
@@ -113,11 +118,48 @@ namespace feng
             return self_type(lhs[0]/rhs, lhs[1]/rhs, lhs[2]/rhs);
         }
         
-        friend bool operator == ( const self_type& lhs, const value_type rhs )
+        friend bool operator == ( const self_type& lhs, const self_type& rhs )
         {
             return  lhs[0] == rhs[0] &&
                     lhs[1] == rhs[1] &&
                     lhs[2] == rhs[2];
+        }
+        
+        friend bool operator != ( const self_type& lhs, const self_type& rhs )
+        {
+            return  lhs[0] != rhs[0] ||
+                    lhs[1] != rhs[1] ||
+                    lhs[2] != rhs[2];
+        }
+        
+        friend bool operator < ( const self_type& lhs, const self_type& rhs )
+        {
+            if ( lhs[0] < rhs[0] ) return true;
+            if ( lhs[0] > rhs[0] ) return false;
+            if ( lhs[1] < rhs[1] ) return true;
+            if ( lhs[1] > rhs[1] ) return false;
+            if ( lhs[2] < rhs[2] ) return true;
+            return false;
+        }
+        
+        friend bool operator <= ( const self_type& lhs, const self_type& rhs )
+        {
+            return (lhs < rhs) || (lhs == rhs);
+        }
+        
+        friend bool operator > ( const self_type& lhs, const self_type& rhs )
+        {
+            if ( lhs[0] > rhs[0] ) return true;
+            if ( lhs[0] < rhs[0] ) return false;
+            if ( lhs[1] > rhs[1] ) return true;
+            if ( lhs[1] < rhs[1] ) return false;
+            if ( lhs[2] > rhs[2] ) return true;
+            return false;
+        }
+        
+        friend bool operator >= ( const self_type& lhs, const self_type& rhs )
+        {
+            return (lhs > rhs) || (lhs == rhs);
         }
 
     };//struct array

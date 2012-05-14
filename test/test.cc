@@ -26,15 +26,16 @@ int main()
     //auto const beams = ca.make_beams( tbeams, Ug );
 
     //auto const beams = ca.make_beams();
-    auto const beams = ca.make_beam_array();
+    auto const beams = ca.make_beam_vector();
+    //auto const beams = ca.make_beam_array();
     auto const gd = ca.make_gd(beams);
     //matrix<double> gm0, gm1, gm2;
     //ca.make_gm( gd, gm0, gm1, gm2 );
-    auto const gm = make_gm(gd);
+    auto const gm = ca.make_gm(gd);
     //auto const ubeams = ca.make_unique_beams( gm0, gm1, gm2  );
     auto const ubeams = ca.make_unique_beams( gm  );
-    //std::cout << matrix<double>{ubeams, range{0, ubeams.row()}, range{4, ubeams.col()}};
-    std::cout << ca.make_ug( ubeams );
+    //std::cout << ca.make_ug( ubeams );
+    //std::cout << ubeams;
 
     return 0;
 }
