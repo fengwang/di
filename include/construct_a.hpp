@@ -158,8 +158,8 @@ struct construct_a
         for ( size_type i = 0; i < fact.col(); ++i )
         {
             Ug[i][0] = std::accumulate( fact.col_begin( i ), fact.col_end( i ), complex_type() );
-            if ( std::abs(Ug[i][0].real()) < 1.0e-5 ) Ug[i][0].real(0);
-            if ( std::abs(Ug[i][0].imag()) < 1.0e-5 ) Ug[i][0].imag(0);
+            if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
+            if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
         }
 
         return Ug;
@@ -277,27 +277,27 @@ struct construct_a
     const complex_matrix_type operator()() const
     {
         auto const Gm = make_gm(make_gd(make_beam_vector()));
+        auto const N  = Gm.row();
+        assert( Gm.row() == Gm.col() );
         auto const Ub = make_unique_beams(Gm);
         auto const Ug = make_ug(Ub);
         auto const R  = make_matrix().inverse();
-        complex_matrix_type A( Ug.size(), Ug.size() );
-        for ( size_type h = 0; h != Ug.size(); ++h )
+        complex_matrix_type A( N, N );
+        for ( size_type h = 0; h != N; ++h )
         {
             auto const vr = Gm[h][h] * R;
             A[h][h] = std::inner_product( vr.begin(), vr.end(), vr.begin(), value_type(0) );
 
-            for ( size_type k = 0; k != Ug.size(); ++k )
+            for ( size_type k = 0; k != N; ++k )
             {
                 if ( h == k ) continue;
-                auto itor = std::lower_bound( Ub.begin(), Ub.end(), vr );
+                auto itor = std::find( Ub.begin(), Ub.end(), Gm[h][k] );
+                //auto itor = std::lower_bound( Ub.begin(), Ub.end(), vrr );
                 assert( itor != Ub.end() );
-                A[h][k] = *( Ug.begin() + std::distance( Ub.begin(), std::lower_bound( Ub.begin(), Ub.end(), vr ) ) );
-
-
+                A[h][k] = *( Ug.begin() + std::distance( Ub.begin(), itor ) );
             }
         }
-
-
+        return A;
     }
 
 };//sturct construct_a

@@ -50,12 +50,9 @@ namespace feng
 
         friend std::ostream& operator << ( std::ostream& os, const self_type& self )
         {
-            return os <<          self[0] << " "
-                               << self[1] << " "
-                               << self[2];
-            //return os << " ("  << self[0] << ", "
-            //                   << self[1] << ", "
-            //                   << self[2] << ") " ;
+            return os << " ("  << self[0] << ", "
+                               << self[1] << ", "
+                               << self[2] << ") " ;
         }
 
         template<std::size_t D, typename A>
