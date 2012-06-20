@@ -162,6 +162,12 @@ namespace feng
     };//struct array
 
     template<typename T>
+    array<T> const scale_multiply( const array<T>& lhs, const array<T>& rhs )
+    {
+        return array<T>( lhs[0]*rhs[0], lhs[1]*rhs[1], lhs[2]*rhs[2] );
+    }
+
+    template<typename T>
     T inner_product( const array<T>& lhs, const array<T>& rhs )
     {
         return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), T(0));

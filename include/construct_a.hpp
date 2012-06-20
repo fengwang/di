@@ -65,6 +65,11 @@ struct construct_a
         return cross_product( zone, gx );
     }
 
+
+    const array_type make_gscale() const 
+    {
+        return array_type( value_type(1) / 5.43, value_type(1) / 5.43, value_type(1) / 5.43 );
+    }
     const matrix_type make_matrix() const
     {
         const auto a = la.a;
@@ -144,7 +149,8 @@ struct construct_a
             s[0][i] = value_type( 0.5 ) * std::sqrt( std::inner_product( S.row_begin( i ), S.row_end( i ), S.row_begin( i ), value_type( 0 ) ) );
         }
 
-        auto const piomega =  3.141592553590 * feng::inner_product( array_type( M[0][0], M[1][0], M[2][0] ), feng::cross_product( array_type( M[0][1], M[1][1], M[2][1] ), array_type( M[0][2], M[1][2], M[2][2] ) ) );
+        auto const piomega =  3.141592553590 * feng::inner_product( array_type( M[0][0], M[1][0], M[2][0] ), 
+                                                                    feng::cross_product( array_type( M[0][1], M[1][1], M[2][1] ), array_type( M[0][2], M[1][2], M[2][2] ) ) );
         auto const atomcellfacte = make_gaussian_electron( s, v0 );
         const complex_matrix_type dwss = D * feng::pow( s, value_type( 2 ) );
         const complex_matrix_type piag = A * G.transpose();
@@ -158,8 +164,8 @@ struct construct_a
         for ( size_type i = 0; i < fact.col(); ++i )
         {
             Ug[i][0] = std::accumulate( fact.col_begin( i ), fact.col_end( i ), complex_type() );
-            if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
-            if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
+            //if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
+            //if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
         }
 
         return Ug;
@@ -276,6 +282,16 @@ struct construct_a
 
     const complex_matrix_type operator()() const
     {
+        return make_a();
+    }
+
+    const matrix_type operator()( const value_type l ) const
+    {
+        return make_i(l);
+    }
+
+    const complex_matrix_type make_a() const 
+    {
         auto const Gm = make_gm(make_gd(make_beam_vector()));
         auto const N  = Gm.row();
         assert( Gm.row() == Gm.col() );
@@ -291,8 +307,8 @@ struct construct_a
             for ( size_type k = 0; k != N; ++k )
             {
                 if ( h == k ) continue;
-                auto itor = std::find( Ub.begin(), Ub.end(), Gm[h][k] );
-                //auto itor = std::lower_bound( Ub.begin(), Ub.end(), vrr );
+                //auto itor = std::find( Ub.begin(), Ub.end(), Gm[h][k] );
+                auto itor = std::lower_bound( Ub.begin(), Ub.end(), Gm[h][k] );
                 assert( itor != Ub.end() );
                 A[h][k] = *( Ug.begin() + std::distance( Ub.begin(), itor ) );
             }
@@ -300,9 +316,114 @@ struct construct_a
         return A;
     }
 
+    const complex_matrix_type make_s( const value_type l ) const
+    {
+       auto A = make_new_a();
+       A *= complex_type(0,-l);
+       //std::fill( A.diag_begin(), A.diag_end(), complex_type(0,0) );
+       return expm(A);
+    }
+
+    const matrix_type make_i( const value_type l ) const 
+    {
+        auto s = make_s(l);
+        matrix_type i { s.row(), s.col() };
+        feng::for_each( s.begin(), s.end(), i.begin(), []( const complex_type& c, value_type & v) {auto norm = std::norm(c); v = norm*norm; } );
+        //feng::for_each( i.begin(), i.end(), []( value_type& v ) { if ( std::abs(v) < 1.0e-8 ) v = value_type(0); } );
+        return i;
+    }
+
+    const matrix_type make_i_using_eigen_method( const value_type l ) const;
+
+    
+    const complex_matrix_type make_new_a() const 
+    {
+       auto A   = make_a();
+       auto gs  = make_gscale();
+       auto gy  = make_gyvec();
+       auto const Gm = make_gm(make_gd(make_beam_vector()));
+       auto gm  = make_unique_beams(Gm);
+
+       array_type gxu = scale_multiply( gx, gs );
+       array_type gyu = scale_multiply( gy, gs );
+
+       array_type gu = array_type( gxu.norm(), gyu.norm(), 0 );
+
+       array_matrix_type gxy( gm.size(), gm.size() );
+
+       std::copy( gm.begin(), gm.end(), gxy.diag_begin() );
+
+       std::for_each( gxy.diag_begin(), gxy.diag_end(), [gu](array_type& a){ a = scale_multiply(a, gu); } );
+
+       matrix_type gxy2( gm.size(), gm.size() );
+       feng::for_each( gm.begin(), gm.end(), gxy2.diag_begin(), [](const array_type& a, value_type& v) { v = a.norm(); v *= v; } );
+
+       feng::for_each( A.diag_begin(), A.diag_end(), gxy2.diag_begin(), [](complex_type& c, const value_type& v){ c = complex_type(0, -v); } );
+    
+       return A;
+    }
+
+
 };//sturct construct_a
 
 }//namespace feng
+
+#include <eigen3/Eigen/Dense>
+
+template<typename T>
+typename feng::construct_a<T>::matrix_type const
+feng::construct_a<T>::make_i_using_eigen_method( const value_type l ) const 
+{
+    typedef Eigen::Matrix<complex_type, Eigen::Dynamic, Eigen::Dynamic> eigen_matrix_type;
+
+    auto A = make_new_a();
+    //std::fill( A.diag_begin(), A.diag_end(), complex_type(0, 0) );
+
+    eigen_matrix_type A_( A.row(), A.col() );
+    for ( size_type i = 0; i < A.row(); ++i )
+        for ( size_type j = 0; j < A.col(); ++j )
+            A_(i,j) = A[i][j];
+
+    Eigen::ComplexEigenSolver<eigen_matrix_type> eigensolver(A_);
+    if (eigensolver.info() != Eigen::Success) abort();
+
+    auto const lambda = eigensolver.eigenvalues();
+    auto const v      = eigensolver.eigenvectors();
+
+    complex_matrix_type Lambda( A.row(), A.col() );
+    complex_matrix_type V     ( A.row(), A.col() );
+
+    for ( size_type i = 0; i < A.row(); ++i )
+        Lambda[i][i] = lambda[i];
+
+    for ( size_type i = 0; i < A.row(); ++i )
+        for ( size_type j = 0; j < A.col(); ++j )
+            V[i][j] = v(i,j);
+
+    for ( size_type i = 0; i < A.row(); ++i )
+        for ( size_type j = 0; j < A.col(); ++j )
+        {
+            if ( std::abs(V[i][j].real()) < 1.0e-8 ) V[i][j].real(0);
+            if ( std::abs(V[i][j].imag()) < 1.0e-8 ) V[i][j].imag(0);
+        }
+
+    for ( size_type i = 0; i < A.row(); ++i )
+    {
+        if ( std::abs(Lambda[i][i].imag()) < 1.0e-8 ) Lambda[i][i].imag(0);
+    }
+
+    Lambda *= complex_type( 0, -l );
+
+    auto const S = V * feng::exp(Lambda) * V.transpose();
+
+    matrix_type I( A.row(), A.col() );
+
+    feng::for_each( S.begin(), S.end(), I.begin(), [](const complex_type& c, value_type& v) { v = std::norm(c); v*= v; } );
+
+    return I;
+}
+
+
 
 #endif//_CONSTRUCT_A_HPP_INCLUDED_SFOIDDDDFFSF8I3498FDAKJSSSSDFSFFFFFFFFFFFFFFFFFFFFFFFFF
 
