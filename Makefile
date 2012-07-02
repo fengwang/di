@@ -1,6 +1,6 @@
 ####### Compiler, tools and options
 CXX           = g++
-#DEFINES       = -w -std=c++11
+#DEFINES       = -w -std=c++11 -pg
 #CXXFLAGS      = 
 INCPATH       = -Iinclude  -I/home/feng/include
 LINK          = g++
