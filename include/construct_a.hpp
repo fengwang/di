@@ -164,8 +164,8 @@ struct construct_a
         for ( size_type i = 0; i < fact.col(); ++i )
         {
             Ug[i][0] = std::accumulate( fact.col_begin( i ), fact.col_end( i ), complex_type() );
-            if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
-            if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
+            //if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
+            //if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
         }
 
         return Ug;
@@ -196,8 +196,8 @@ struct construct_a
 
     const array_vector_type make_beam_vector() const
     {
-        auto const mx = 3;// make_beamx_max();
-        auto const my = 3;// make_beamy_max();
+        auto const mx = 2;// make_beamx_max();
+        auto const my = 2;// make_beamy_max();
         auto const gy = make_gyvec();
         array_vector_type beams {1};
 
@@ -307,7 +307,6 @@ struct construct_a
             for ( size_type k = 0; k != N; ++k )
             {
                 if ( h == k ) continue;
-                //auto itor = std::find( Ub.begin(), Ub.end(), Gm[h][k] );
                 auto itor = std::lower_bound( Ub.begin(), Ub.end(), Gm[h][k] );
                 assert( itor != Ub.end() );
                 A[h][k] = *( Ug.begin() + std::distance( Ub.begin(), itor ) );
@@ -316,16 +315,19 @@ struct construct_a
         return A;
     }
 
+
+    // s = e^{i \pi \lambda A}
     const complex_matrix_type make_s( const value_type l ) const
     {
        auto A = make_new_a();
 
 
        A *= complex_type(0,l);
-       //A *= complex_type(0,-l);
        return expm(A);
     }
 
+
+    // I = S S^*
     const matrix_type make_i( const value_type l ) const 
     {
         auto s = make_s(l);
@@ -334,12 +336,15 @@ struct construct_a
 
     const matrix_type make_i_using_eigen_method( const value_type l ) const;
     
+
+    //should be optimized
     const complex_matrix_type make_new_a() const 
     {
        auto A   = make_a();
        auto gs  = make_gscale();
        auto gy  = make_gyvec();
-       auto const Gm = make_gm(make_gd(make_beam_vector()));
+       auto const gd = make_gd(make_beam_vector());
+       auto const Gm = make_gm(gd);
        auto gm  = make_unique_beams(Gm);
 
        array_type gxu = scale_multiply( gx, gs );
@@ -347,53 +352,13 @@ struct construct_a
 
        array_type gu = array_type( gxu.norm(), gyu.norm(), 0 );
 
-       //array_matrix_type gxy( gm.size(), gm.size() );
-       //std::copy( gm.begin(), gm.end(), gxy.diag_begin() );
-
-       //array_matrix_type gxy( Gm.row(), Gm.col() );
-       //std::copy( Gm.diag_begin(), Gm.diag_end(), gxy.diag_begin() );
-
-#if 0
-       array_matrix_type gxy = diag( Gm );
-
-       std::cout << "\nrow of GM is " << Gm.row();
-       std::cout << "\ncol of GM is " << Gm.col();
-       std::cout << "\nsize of gm is " << gm.size();
-       std::cout << "\nGm[0][0] = \n" << Gm[0][0] << "\n";
-
-       //needs more concern here
-       //std::for_each( gxy.diag_begin(), gxy.diag_end(), [gu](array_type& a){ a = scale_multiply(a, gu); } );
-       std::for_each( gxy.diag_begin(), gxy.diag_end(), [gu](array_type& a){ a[0]*=gu[1]; a[1]*=gu[0]; a[2]=0; } );
-
-       matrix_type gxy2( gm.size(), gm.size() );
-       feng::for_each( gm.begin(), gm.end(), gxy2.diag_begin(), [](const array_type& a, value_type& v) { v = a.norm(); v *= v; } );
-#endif
-
-       array_vector_type gxy( Gm.diag_begin(), Gm.diag_end() );
+       array_vector_type gxy( gd );
        std::for_each( gxy.begin(), gxy.end(), [gu](array_type& a){ a[0]*=gu[1]; a[1]*=gu[0]; a[2]=0; } );
-       array_type gxy2( gxy.size() );
+       vector_type gxy2( gxy.size() );
        feng::for_each( gxy2.begin(), gxy2.end(), gxy.begin(), [](value_type& v, const array_type& a){ v = a.norm(); v*=v; } );
 
-       std::cout << "\nGm.diag is \n";
-       std::copy( Gm.diag_begin(), Gm.diag_end(), std::ostream_iterator<array_type>( std::cout, "\n"));
-
-       std::cout << "\nGm is \n" << Gm << "\n"; 
-
-       std::cout << "\ngxy is \n";
-       std::copy( gxy.begin(), gxy.end(), std::ostream_iterator<array_type>( std::cout, "\n"));
-       
-       std::cout << "\ngxy2 is \n";
-       std::copy( gxy2.begin(), gxy2.end(), std::ostream_iterator<value_type>( std::cout, "\n"));
-
-       //orig
-       //feng::for_each( A.diag_begin(), A.diag_end(), gxy2.diag_begin(), [](complex_type& c, const value_type& v){ c = complex_type(0, -v); } );
-       //feng::for_each( A.diag_begin(), A.diag_end(), gxy2.diag_begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
        feng::for_each( A.diag_begin(), A.diag_end(), gxy2.begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
 
-       std::cout << "\ngxy2 = \n" << gxy2 << "\n";
-
-       std::cout << "\nA=\n" << A << "\n";
-    
        return A;
     }
 

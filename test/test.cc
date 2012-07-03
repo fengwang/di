@@ -19,13 +19,20 @@ int main()
 
     //std::cout << feng::expm(A);
 
-    auto I = feng::construct_a<double>().make_i(7.879); 
+    //auto I = feng::construct_a<double>().make_i(7.879); 
+    auto I = feng::construct_a<double>().make_i(100); 
 
-    feng::for_each( I.begin(), I.end(), [](double&d){ if (std::abs(d)<=1.0e-8) d=0; } );
+    //feng::for_each( I.begin(), I.end(), [](double&d){ if (std::abs(d)<=1.0e-8) d=0; } );
 
     std::cout << "\nI=\n" <<  I;
 
-    //std::copy( I.col_begin(24), I.col_end(24), std::ostream_iterator<double>(std::cout, "\n") );
+
+    std::cout << "\ndiagonal value of I\n";
+    std::copy( I.diag_begin(), I.diag_end(), std::ostream_iterator<double>(std::cout, "\t"));
+
+    std::cout << "\nmiddle column of I\n";
+    auto const mid = I.row() >> 1;
+    std::copy( I.col_begin(mid), I.col_end(mid), std::ostream_iterator<double>(std::cout, "\n") );
 
     return 0;
 }
