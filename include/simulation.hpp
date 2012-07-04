@@ -164,8 +164,8 @@ struct construct_a
         for ( size_type i = 0; i < fact.col(); ++i )
         {
             Ug[i][0] = std::accumulate( fact.col_begin( i ), fact.col_end( i ), complex_type() );
-            //if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
-            //if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
+            if ( std::abs(Ug[i][0].real()) < 1.0e-8 ) Ug[i][0].real(0);
+            if ( std::abs(Ug[i][0].imag()) < 1.0e-8 ) Ug[i][0].imag(0);
         }
 
         return Ug;
@@ -315,12 +315,105 @@ struct construct_a
         return A;
     }
 
+    const matrix_type make_new_i( const complex_matrix_type& A, const value_type l ) const 
+    {
+        auto A_ = A;
+        feng::for_each( A_.begin(), A_.end(), [l](complex_type& c){ auto const a=c.real(); auto const b=c.imag(); c.real(-b*l); c.imag(a*l); } );
+
+        A_ = expm(A_);
+
+        matrix_type ans( A_.row(), A_.col() );
+
+        feng::for_each( ans.begin(), ans.end(), A_.begin(), [](value_type& v, const complex_type& c){ v = c.real()*c.real()+c.imag()*c.imag(); } ); 
+                       
+        return ans;
+    }
+
+    template< typename Itor >
+    const matrix_type make_new_i_with_offset(const complex_matrix_type& A, const value_type l, Itor it)
+    {
+        auto A_ = A;
+        feng::for_each( A_.diag_begin(), A_.diag_end(), it, [](complex_type& c, typename Itor::value_type v){ c.real(c.real()+v); } );
+
+        feng::for_each( A_.begin(), A_.end(), [l](complex_type& c){ auto const a=c.real(); auto const b=c.imag(); c.real(-b*l); c.imag(a*l); } );
+
+        A_ = expm(A_);
+
+        matrix_type ans( A_.row(), A_.col() );
+
+        feng::for_each( ans.begin(), ans.end(), A_.begin(), [](value_type& v, const complex_type& c){ v = c.real()*c.real()+c.imag()*c.imag(); } ); 
+                       
+        return ans;
+    }
+
+    // return a matrix, every column is an offset of matrix A
+    const matrix_type make_gxy2_offset() const 
+    {
+       auto A   = make_a();
+       auto const gd = make_gd(make_beam_vector());
+       auto const n = gd.size();
+
+       matrix_type offset( n, 1 ); 
+       matrix_type offset_tmp( n, 1 ); 
+
+       //size_type const N = std::ceil( std::sqrt(n) );
+       size_type const N = n+n;
+       size_type const max_offset = n+n;
+
+       for ( size_type i = 0; i != N; ++i )
+       {
+           if ( offset.col() > max_offset ) break;
+           for ( size_type j = 0; j != N; ++j )
+           {
+               if ( offset.col() > max_offset ) break;
+               if ( 0 == i && 0 == j ) continue;
+
+               value_type const rx = value_type(i) / N;
+               value_type const ry = value_type(j) / N;
+
+               for ( size_type i = 0; i != n; ++i )
+               {
+                   auto const off = gd[i][0] * rx + gd[i][1] * ry;
+                   offset_tmp[i][0] = off+off;
+               }
+
+               offset =  offset || offset_tmp;
+
+               for ( size_type i = 0; i != n; ++i )
+               {
+                   auto const off = gd[i][0] * rx - gd[i][1] * ry;
+                   offset_tmp[i][0] = off+off;
+               }
+
+               offset =  offset || offset_tmp;
+
+               for ( size_type i = 0; i != n; ++i )
+               {
+                   auto const off = -gd[i][0] * rx + gd[i][1] * ry;
+                   offset_tmp[i][0] = off+off;
+               }
+
+               offset =  offset || offset_tmp;
+
+               for ( size_type i = 0; i != n; ++i )
+               {
+                   auto const off = -gd[i][0] * rx - gd[i][1] * ry;
+                   offset_tmp[i][0] = off+off;
+               }
+
+               offset =  offset || offset_tmp;
+           }
+       }
+
+       return offset;
+    }
+
+
 
     // s = e^{i \pi \lambda A}
     const complex_matrix_type make_s( const value_type l ) const
     {
        auto A = make_new_a();
-
 
        A *= complex_type(0,l);
        return expm(A);
@@ -336,6 +429,7 @@ struct construct_a
 
     const matrix_type make_i_using_eigen_method( const value_type l ) const;
     
+
 
     //should be optimized
     const complex_matrix_type make_new_a() const 
@@ -358,8 +452,6 @@ struct construct_a
        feng::for_each( gxy2.begin(), gxy2.end(), gxy.begin(), [](value_type& v, const array_type& a){ v = a.norm(); v*=v; } );
 
        feng::for_each( A.diag_begin(), A.diag_end(), gxy2.begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
-
-       std::cout << "\nA=\n" << A;
 
        return A;
     }
