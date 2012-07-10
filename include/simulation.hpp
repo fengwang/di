@@ -196,8 +196,8 @@ struct construct_a
 
     const array_vector_type make_beam_vector() const
     {
-        auto const mx = 1;// make_beamx_max();
-        auto const my = 1;// make_beamy_max();
+        auto const mx = 4;// make_beamx_max();
+        auto const my = 4;// make_beamy_max();
         auto const gy = make_gyvec();
         array_vector_type beams {1};
 
@@ -330,7 +330,7 @@ struct construct_a
     }
 
     template< typename Itor >
-    const matrix_type make_new_i_with_offset(const complex_matrix_type& A, const value_type l, Itor it)
+    const matrix_type make_new_i_with_offset(const complex_matrix_type& A, const value_type l, Itor it) const 
     {
         auto A_ = A;
         feng::for_each( A_.diag_begin(), A_.diag_end(), it, [](complex_type& c, typename Itor::value_type v){ c.real(c.real()+v); } );
@@ -386,7 +386,7 @@ struct construct_a
                }
 
                offset =  offset || offset_tmp;
-
+#if 0
                for ( size_type i = 0; i != n; ++i )
                {
                    auto const off = -gd[i][0] * rx + gd[i][1] * ry;
@@ -402,6 +402,7 @@ struct construct_a
                }
 
                offset =  offset || offset_tmp;
+#endif
            }
        }
 
@@ -435,25 +436,43 @@ struct construct_a
     const complex_matrix_type make_new_a() const 
     {
        auto A   = make_a();
-       auto gs  = make_gscale();
-       auto gy  = make_gyvec();
-       auto const gd = make_gd(make_beam_vector());
-       auto const Gm = make_gm(gd);
-       auto gm  = make_unique_beams(Gm);
-
-       array_type gxu = scale_multiply( gx, gs );
-       array_type gyu = scale_multiply( gy, gs );
-
-       array_type gu = array_type( gxu.norm(), gyu.norm(), 0 );
-
-       array_vector_type gxy( gd );
-       std::for_each( gxy.begin(), gxy.end(), [gu](array_type& a){ a[0]*=gu[1]; a[1]*=gu[0]; a[2]=0; } );
-       vector_type gxy2( gxy.size() );
-       feng::for_each( gxy2.begin(), gxy2.end(), gxy.begin(), [](value_type& v, const array_type& a){ v = a.norm(); v*=v; } );
-
+       auto const gxy2 = make_gxy2();
        feng::for_each( A.diag_begin(), A.diag_end(), gxy2.begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
 
        return A;
+    }
+
+    const vector_type make_gxy2() const 
+    {
+       array_type const gs  = make_gscale();
+       array_type const gy  = make_gyvec();
+       array_type const gxu = scale_multiply( gx, gs );
+       array_type const gyu = scale_multiply( gy, gs );
+       array_type const gu = array_type( gxu.norm(), gyu.norm(), 0 );
+       array_vector_type gxy( make_gd(make_beam_vector()));
+       std::for_each( gxy.begin(), gxy.end(), 
+                      [&gu](array_type& a){ a[0]*=gu[1]; a[1]*=gu[0]; a[2]=0; } );
+       vector_type gxy2( gxy.size() );
+       feng::for_each( gxy2.begin(), gxy2.end(), gxy.begin(), 
+                       [](value_type& v, const array_type& a){ v = a.norm(); v*=v; } );
+        
+       return gxy2;
+    }
+
+    const matrix_type make_is( const value_type l ) const 
+    {
+        auto const A = make_new_a();
+        auto const offset = make_gxy2_offset();
+        matrix_type Is( A.row(), offset.col() );
+        auto const mid = A.row() >> 1;
+
+        for ( size_type i = 0; i != Is.col(); ++i )
+        {
+            auto const I = make_new_i_with_offset( A, l, offset.col_begin(i) );     
+            std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
+        }
+    
+        return Is;
     }
 
 

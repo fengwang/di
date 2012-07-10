@@ -40,18 +40,21 @@ int main()
     feng::for_each( A_.begin(), A_.end(), [&acc](std::complex<double> const & c){ acc += std::abs(c.real());} ); 
     std::cout << acc;
 
-    std::cout << "\nA=\n" << A << "\n";
+    //std::cout << "\nA=\n" << A << "\n";
 
     auto const offset = feng::construct_a<double>().make_gxy2_offset();
 
     feng::construct_a<double> :: matrix_type Is( A.row(), offset.col() );
+
+
+    //std::cout << "\nThe gxy2_offset matrix is \n" << offset;
 
     unsigned long t1 = std::clock();
 
     for ( size_t i = 0; i != offset.col(); ++i )
     {
         //auto I = feng::construct_a<double>().make_new_i_with_offset(A, 100, offset.col_begin(i));
-        auto I = feng::construct_a<double>().make_new_i_with_offset(A,7.879, offset.col_begin(i));
+        auto I = feng::construct_a<double>(). make_new_i_with_offset(A,7.879, offset.col_begin(i));
         feng::for_each( I.begin(), I.end(), [](double&d){ if (std::abs(d)<=1.0e-8) d=0; } );
         auto const mid = I.row() >> 1;
         std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
@@ -63,7 +66,12 @@ int main()
 
     std::cout << "\ntime consumed: " << t2 - t1 << "\n";
 
-    std::cout << Is;
+    //std::cout << Is;
+
+    //std::cout << "\nTest Is is \n" << feng::construct_a<double>().make_is( 7.879 ); 
+
+
+
 
     return 0;
 }
