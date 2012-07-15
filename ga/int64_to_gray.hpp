@@ -5,13 +5,16 @@
 
 namespace ga
 {
+    // usage:
+    //      uint64_t n;
+    //      auto g = int64_to_gray()(n); //convert n to gray code
     struct int64_to_gray
     {
         typedef std::uint64_t value_type;
 
-        const value_type operator()( const value_type v ) const 
+        const value_type operator()( const value_type v ) const
         {
-            return v ^ ( v >> 1 ); 
+            return v ^ ( v >> 1 );
         }
 
     };//int64_to_gray

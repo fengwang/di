@@ -11,14 +11,17 @@ namespace feng
 
             singleton( const self_type& ) = delete;
             self_type& operator = ( const self_type& ) = delete;
-            singleton( self_type&& ) = delete;
-            self_type& operator = ( self_type&& ) = delete;
+            singleton( self_type && ) = delete;
+            self_type& operator = ( self_type && ) = delete;
             singleton() = delete;
 
         private:
             struct constuctor
             {
-                constuctor() { self_type::instance(); }
+                constuctor()
+                {
+                    self_type::instance();
+                }
                 inline void null_action() const { }
             };
 
@@ -35,7 +38,7 @@ namespace feng
     };
 
     template<typename T>
-    typename singleton<T>::constuctor singleton<T>::constuctor_;    
+    typename singleton<T>::constuctor singleton<T>::constuctor_;
 
 }//namespace feng
 
