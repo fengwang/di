@@ -9,6 +9,10 @@ namespace ga
     // usage:
     //          uint64_t n;
     //          auto i = gray_to_int_64()(n); //convert n to normal int
+    // 
+    //          matrix<uint64_t> m;
+    //          feng::for_each( m.begin(), m.end(), [](uint64_t& v){ v = gray_to_int_64()(v); } );
+    //          std::transform( m.begin(), m.end(), m.begin(), gray_to_int_64() );
     struct gray_to_int_64
     {
         typedef std::uint64_t value_type;

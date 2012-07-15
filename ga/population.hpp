@@ -19,9 +19,6 @@ namespace ga
     {
         Container_Type<Chromosome_Type, std::allocator<Chromosome_Type>> individual_pool;
 
-
-
-
     };//struct population
 
 }//namespace ga

@@ -12,8 +12,8 @@ namespace ga
     {
         typedef Chromosome_Dominance_Type value_type;
 
-        Chromosome_Dominance_Type chrom;
-        Fitness_Type fit;
+        Chromosome_Dominance_Type chrom; //a kind of data structure representing the value of the chromosome
+        Fitness_Type fit; //the greater the better, no normalization required
     };//struct chromosome
 
 }//namespace ga
