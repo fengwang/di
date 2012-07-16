@@ -14,11 +14,16 @@ namespace ga
     //              typedef chromosome<feng::matrix<double>> chromosome_type;
     //              typedef population<std::vector, chromosome_type> population_type;
     //
-    template<template<class, class> class Container_Type, class Chromosome_Type>
+    template<class Chromosome_Type>
     struct population
     {
-        Container_Type<Chromosome_Type, std::allocator<Chromosome_Type>> individual_pool;
+        typedef std::shared_ptr<Chromosome_Type> chromosome_pointer_type;
 
+        typedef std::vector<chromosome_pointer_type> chromosome_pool_type;
+
+        chromosome_pool_type pool;      //the individuals living in the current pool
+ 
+        chromosome_pointer_type elite;  //the chromosome fit best
     };//struct population
 
 }//namespace ga

@@ -11,9 +11,9 @@ namespace ga
     //          auto i = gray_to_int_64()(n); //convert n to normal int
     // 
     //          matrix<uint64_t> m;
-    //          feng::for_each( m.begin(), m.end(), [](uint64_t& v){ v = gray_to_int_64()(v); } );
-    //          std::transform( m.begin(), m.end(), m.begin(), gray_to_int_64() );
-    struct gray_to_int_64
+    //          feng::for_each( m.begin(), m.end(), [](uint64_t& v){ v = gray_to_uint64()(v); } );
+    //          std::transform( m.begin(), m.end(), m.begin(), gray_to_uint64() );
+    struct gray_to_uint64
     {
         typedef std::uint64_t value_type;
 
@@ -26,7 +26,7 @@ namespace ga
             return num;
         }
 
-    };//gray_to_int_64
+    };//gray_to_uint64
 };//namespace ga
 
 #endif//_GRAY_TO_INT64_HPP_INCLUDED_DSOFIJR98AFSIHJ98R3YAOWI3498YAOISFUHASKFDHJASIFUH3HU7AIUHFDKJVKJ

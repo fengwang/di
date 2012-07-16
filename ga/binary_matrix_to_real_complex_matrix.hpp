@@ -18,7 +18,6 @@ namespace ga
     //          binary_matrix_to_real_complex_matrix()( m1, m2, low, hig );
     struct binary_matrix_to_real_complex_matrix_symmetric
     {
-
         // convert a binary matrix to a real complex matrix, the Block wave potential matrix  Ug
         // the diagonal value should all be zero, and for symmetric crystals, the imag part is zero
         template<typename Binary_Matrix, typename Real_Complex_Matrix, typename Real_Type=double>
@@ -51,9 +50,35 @@ namespace ga
             std::fill( rm.diag_begin(), rm.diag_end(), typename Real_Complex_Matrix::value_type(0,0) );
         }
 
-
+        template<typename Binary_Matrix, typename Real_Type=double>
+        feng::matrix<std::complex<Real_Type>> const 
+        operator()( const Binary_Matrix& bm, const Real_Type lower, const Real_Type upper ) const 
+        {
+            feng::matrix<std::complex<Real_Type>> rm( bm.row(), bm.col() );
+            binary_matrix_to_real_complex_matrix_symmetric()( bm, rm, lower, upper );
+            return rm;
+        }
 
     };//struct binary_matrix_to_real_complex_matrix 
+
+    template<typename Type = double>
+    struct symmetric_binary_matrix_to_real_complex_matrix_translator
+    {
+        typedef Type value_type;
+        value_type lower_boundary;
+        value_type upper_boundary;
+
+        template<typename Binary_Matrix, typename Real_Complex_Matrix>
+        void operator()( const Binary_Matrix& bm, Real_Complex_Matrix& rm ) const
+        {
+            return binary_matrix_to_real_complex_matrix_symmetric()(bm, rm, lower_boundary, upper_boundary);
+        }
+
+        symmetric_binary_matrix_to_real_complex_matrix_translator( const value_type lower_boundary_, const value_type upper_boundary_ ) :
+            lower_boundary(lower_boundary_), upper_boundary(upper_boundary_)
+        {}
+
+    };
 
 }//namespace ga
 

@@ -7,8 +7,8 @@ namespace ga
 {
     // usage:
     //      uint64_t n;
-    //      auto g = int64_to_gray()(n); //convert n to gray code
-    struct int64_to_gray
+    //      auto g = uint64_to_gray()(n); //convert n to gray code
+    struct uint64_to_gray
     {
         typedef std::uint64_t value_type;
 

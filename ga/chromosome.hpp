@@ -7,6 +7,9 @@
 
 namespace ga
 {
+    // example:
+    // std::shared_ptr<chromosome<feng::matrix<uint64>>> sfoijeoijsfda;
+
     template < typename Chromosome_Dominance_Type, typename Fitness_Type = double >
     struct chromosome
     {
@@ -14,6 +17,8 @@ namespace ga
 
         Chromosome_Dominance_Type chrom; //a kind of data structure representing the value of the chromosome
         Fitness_Type fit; //the greater the better, no normalization required
+
+        bool modification_after_evaluation_flag; // true if this chromosome has been modified after last evalution
     };//struct chromosome
 
 }//namespace ga
