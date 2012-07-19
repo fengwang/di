@@ -4,7 +4,7 @@
 #include <matrix.hpp>
 #include <gray_to_uint64.hpp>
 #include <uint64_to_gray.hpp>
-
+#include <vg.hpp>
 
 #include <cmath>
 #include <vector>
@@ -15,14 +15,14 @@ namespace ga
 {
     //      returns an id that is selected
     // usage:
-    //      auto& cs = feng::singleton<xover_manager>::instance();
+    //      auto& cs = feng::singleton<xover_selection_manager>::instance();
     //      cs.initialize(1080); //should only in ga manager
     //      auto const selected_chromosome = cs(); 
-    struct xover_manager
+    struct xover_selection_manager
     {
         std::vector<double> weigh_array;
 
-        xover_manager( const std::size_t n = 196 )
+        xover_selection_manager( const std::size_t n = 196 )
         {
             initialize( n );
         }
@@ -121,6 +121,62 @@ namespace ga
             
         }
     };
+
+
+
+    struct single_point_xover
+    {
+        template<typename Uint_Type>
+        void operator()(Uint_Type const f, Uint_Type const m, Uint_Type& s, Uint_Type& d) const 
+        {
+            const std::size_t length = sizeof(Uint_Type) << 3; 
+            auto& vg = feng::singleton<vg::variate_generator<double>>::instance();
+            const std::size_t right_pos = vg() * length;
+            const std::size_t left_pos = length - right_pos;
+
+            s = ((f >> right_pos) << right_pos) | (( m << left_pos ) >> left_pos);
+            d = ((m >> right_pos) << right_pos) | (( f << left_pos ) >> left_pos);
+        }
+
+    };//struct single_point_xover 
+
+    struct uniform_xover
+    {
+        template<typename Uint_Type>
+        void operator()(Uint_Type const f, Uint_Type const m, Uint_Type& s, Uint_Type& d) const 
+        {
+            Uint_Type hig_mask, low_mask;
+            if ( 4 == sizeof(Uint_Type) )
+            {
+                hig_mask = 0xaaaaaaaa;
+                low_mask = 0x55555555;
+            }
+            if ( 8 == sizeof(Uint_Type) )
+            {
+                hig_mask = 0xaaaaaaaaaaaaaaaaUL;
+                low_mask = 0x5555555555555555UL;
+            }
+            assert( hig_mask );
+            assert( low_mask );
+
+            s = (f & hig_mask) | (m & low_mask);
+            d = (m & hig_mask) | (f & low_mask);
+        } 
+    };//struct uniform_xover
+
+
+
+
+
+
+
+    struct binary_matrix_xover
+    {
+    
+    
+    };
+
+
 
 
 

@@ -40,7 +40,6 @@ namespace ga
         }
     };//struct mutation_manager 
 
-
     struct binary_mutation
     {
         typedef std::uint64_t uint_type;
@@ -79,8 +78,6 @@ namespace ga
         }
     
     };
-
-
 
 }//namespace ga
 

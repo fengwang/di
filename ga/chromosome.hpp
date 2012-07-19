@@ -1,10 +1,6 @@
 #ifndef _CHROMOSOME_HPP_INCLUDED_SOFIJW98RUASFOIUHEW8RUFHASFDLKUHASFIOUHVSDKJHBVCJHBSAKFIUYHASF8IGYU
 #define _CHROMOSOME_HPP_INCLUDED_SOFIJW98RUASFOIUHEW8RUFHASFDLKUHASFIOUHVSDKJHBVCJHBSAKFIUYHASF8IGYU
 
-#include <matrix.hpp>
-
-#include <vector>
-
 namespace ga
 {
     // example:
@@ -20,6 +16,13 @@ namespace ga
 
         bool modification_after_evaluation_flag; // true if this chromosome has been modified after last evalution
     };//struct chromosome
+
+    template< typename Chromosome_Dominance_Type, typename Fitness_Type >
+    bool operator < ( const chromosome<Chromosome_Dominance_Type, Fitness_Type>& lhs,
+                      const chromosome<Chromosome_Dominance_Type, Fitness_Type>& rhs )
+    {
+        return lhs.fit < rhs.fit;
+    }
 
 }//namespace ga
 

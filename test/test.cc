@@ -1,78 +1,107 @@
-//#include <construct_a.hpp>
 #include <simulation.hpp>
 
 #include <iostream>
 #include <algorithm>
 #include <iterator>
+#include <iomanip>
 
 #include <ctime>
 
+template<typename T=double>
+struct expm_evaluator
+{
+    typedef T value_type;
+    typedef feng::construct_a<value_type>                host_type;
+    typedef typename host_type::complex_type             complex_type;
+    typedef typename host_type::matrix_type              matrix_type;
+    typedef typename host_type::complex_matrix_type      complex_matrix_type;
+    typedef typename host_type::vector_type              vector_type;
+
+    matrix_type offset;
+    vector_type gxy2;
+    complex_matrix_type A_real;
+    matrix_type Is_real;
+    //cache for acceleration
+    complex_matrix_type A_guess;
+    matrix_type Is_guess;
+    complex_matrix_type A_expm_cache;
+
+    expm_evaluator():   offset( host_type().make_gxy2_offset() ),
+                        gxy2( host_type().make_gxy2() ),
+                        A_real( host_type().make_new_a() )
+    {
+        Is_real.resize( A_real.row(), offset.col() );
+        for ( size_t i = 0; i != offset.col() && i != A_real.row(); ++i )
+        {
+            auto I = host_type(). make_new_i_with_offset(A_real, 7.879, offset.col_begin(i));
+            auto const mid = I.row() >> 1;
+            std::copy( I.col_begin(mid), I.col_end(mid), Is_real.col_begin(i) );
+        }    
+
+    }
+
+    value_type operator()( const complex_matrix_type& A )
+    {
+        A_guess = A;
+        feng::for_each( A_guess.diag_begin(), A_guess.diag_end(), gxy2.begin(), []( complex_type&c, const value_type& v ){ c = complex_type(-v, 0); } );
+
+        Is_guess.resize( A_guess.row(), offset.col() );
+
+        std::size_t const n = A.row();
+
+        for ( size_t i = 0; (i != offset.col()) && (i != n); ++i )
+        {
+            host_type().make_new_i_with_offset( A_expm_cache, A_guess, 7.879, offset.col_begin(i), Is_guess.col_begin(i) );
+        }    
+
+        value_type diff = 0;
+
+        feng::for_each( Is_guess.begin(), Is_guess.end(), Is_real.begin(), [&diff](value_type const ig, value_type const ir ) { auto const d=ig-ir; diff += d*d; } );
+
+        return diff;
+    }
+
+};
+
 int main()
 {
-    //std::cout << feng::construct_a<double>()();
-    //std::cout << feng::construct_a<double>().make_a();
-    //std::cout << "\n";
-    //std::cout << feng::construct_a<double>()(10);
-    //std::cout << feng::construct_a<double>().make_i(10);
-    //feng::construct_a<double>().make_eigen();
-
-    //auto A = feng::construct_a<double>().make_a();
-
-    //std::cout << feng::construct_a<double>().make_i_using_eigen_method(10);
-
-    //std::cout << feng::expm(A);
-
-    //auto I = feng::construct_a<double>().make_i(7.879); 
-    //auto I = feng::construct_a<double>().make_i(100); 
-
+#if 0
     auto A = feng::construct_a<double>().make_new_a();
     feng::for_each( A.begin(), A.end(), [](std::complex<double>&d){ if(std::abs(d.real())<1.8e-8) d.real(0); if(std::abs(d.imag())<1.0e-8) d.imag(0); } );
-
-    auto A_(A);
-    std::fill( A_.diag_begin(), A_.diag_end(), double(0));
-    std::cout << "\nmax non-diag element of A real is ";
-    double mx=0;
-    feng::for_each( A_.begin(), A_.end(), [&mx](std::complex<double> const & c){ if (std::abs(c.real()) > mx) mx = std::abs(c.real()); } ); 
-    std::cout << mx;
-
-    std::cout << "\naccumulation of non-diag value A is ";
-    double acc = 0;
-    feng::for_each( A_.begin(), A_.end(), [&acc](std::complex<double> const & c){ acc += std::abs(c.real());} ); 
-    std::cout << acc;
-
-    //std::cout << "\nA=\n" << A << "\n";
 
     auto const offset = feng::construct_a<double>().make_gxy2_offset();
 
     feng::construct_a<double> :: matrix_type Is( A.row(), offset.col() );
 
 
-    //std::cout << "\nThe gxy2_offset matrix is \n" << offset;
-
-    unsigned long t1 = std::clock();
+    std::cout << "\nA=\n" << A;
 
     for ( size_t i = 0; i != offset.col(); ++i )
     {
-        //auto I = feng::construct_a<double>().make_new_i_with_offset(A, 100, offset.col_begin(i));
         auto I = feng::construct_a<double>(). make_new_i_with_offset(A,7.879, offset.col_begin(i));
         feng::for_each( I.begin(), I.end(), [](double&d){ if (std::abs(d)<=1.0e-8) d=0; } );
         auto const mid = I.row() >> 1;
         std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
-
-        std::cout << "\naccumulation of " << i << "th column is " << std::accumulate( I.col_begin(mid), I.col_end(mid), double(0));
     }
 
-    unsigned long t2 = std::clock();
+#endif
 
-    std::cout << "\ntime consumed: " << t2 - t1 << "\n";
-
-    //std::cout << Is;
-
-    //std::cout << "\nTest Is is \n" << feng::construct_a<double>().make_is( 7.879 ); 
-
-
-
+#if 1
+    expm_evaluator<double> ee;
+    auto A_ = ee.A_real;
+    std::fill( A_.diag_begin(), A_.diag_end(), 0.0 );
+    std::cout << ee( A );
+#endif
 
     return 0;
+
+
+
+
+
+
+
+
+
 }
 

@@ -196,8 +196,8 @@ struct construct_a
 
     const array_vector_type make_beam_vector() const
     {
-        auto const mx = 4;// make_beamx_max();
-        auto const my = 4;// make_beamy_max();
+        auto const mx = 1;// make_beamx_max();
+        auto const my = 1;// make_beamy_max();
         auto const gy = make_gyvec();
         array_vector_type beams {1};
 
@@ -329,6 +329,37 @@ struct construct_a
         return ans;
     }
 
+    //                 gxy2           current
+    template< typename Itor, typename Otor >
+    void make_new_i_with_offset(complex_matrix_type& A_cache, const complex_matrix_type& A, const value_type l, Itor it, Otor oi ) const 
+    {
+        A_cache = A;
+        feng::for_each( A_cache.diag_begin(), A_cache.diag_end(), it, [](complex_type& c, typename Itor::value_type v){ c.real(c.real()+v); } );
+
+        feng::for_each( A_cache.begin(), A_cache.end(), [l](complex_type& c){ auto const a=c.real(); auto const b=c.imag(); c.real(-b*l); c.imag(a*l); } );
+
+        A_cache = expm(A_cache);
+
+        auto const mid = A_cache.col() >> 1;
+
+        feng::for_each( A_cache.col_begin(mid), A_cache.col_end(mid), oi, []( const complex_type& c, typename Otor::value_type& v ) { v = c.real()*c.real() + c.imag()*c.imag(); } );
+    }
+
+    //specially design for the evaluator
+    template< typename Itor >
+    void make_new_i_with_offset(matrix_type& I, complex_matrix_type& A_, const value_type l, Itor it) const 
+    {
+        feng::for_each( A_.diag_begin(), A_.diag_end(), it, [](complex_type& c, typename Itor::value_type v){ c.real(c.real()+v); } );
+
+        feng::for_each( A_.begin(), A_.end(), [l](complex_type& c){ auto const a=c.real(); auto const b=c.imag(); c.real(-b*l); c.imag(a*l); } );
+
+        auto const A_E = expm(A_);
+
+        I.resize( A_E.row(), A_E.col() );
+
+        feng::for_each( I.begin(), I.end(), A_E.begin(), [](value_type& v, const complex_type& c){ v = c.real()*c.real()+c.imag()*c.imag(); } ); 
+    }
+
     template< typename Itor >
     const matrix_type make_new_i_with_offset(const complex_matrix_type& A, const value_type l, Itor it) const 
     {
@@ -440,6 +471,13 @@ struct construct_a
        feng::for_each( A.diag_begin(), A.diag_end(), gxy2.begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
 
        return A;
+    }
+
+    const complex_matrix_type make_new_a( const complex_matrix_type& A, const vector_type& gxy2 ) const
+    {
+        auto A_ = A;
+        feng::for_each( A_.diag_begin(), A_.diag_end(), gxy2.begin(), [](complex_type& c, const value_type& v){ c = complex_type(-v, 0); } );
+        return A_;
     }
 
     const vector_type make_gxy2() const 
