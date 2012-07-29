@@ -2,7 +2,7 @@
 #CXX           = g++
 #DEFINES       = -w -std=c++11 -pg
 #CXXFLAGS      = 
-INCPATH       = -Iinclude  -I/home/feng/include
+INCPATH       = -Iinclude  -I/home/feng/include -I/Users/feng/include
 LINK          = $(CXX)
 #LFLAGS        = -pg
 DEL_FILE      = rm -f

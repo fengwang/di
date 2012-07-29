@@ -65,7 +65,7 @@ struct expm_evaluator
 
 int main()
 {
-#if 0
+#if 1
     auto A = feng::construct_a<double>().make_new_a();
     feng::for_each( A.begin(), A.end(), [](std::complex<double>&d){ if(std::abs(d.real())<1.8e-8) d.real(0); if(std::abs(d.imag())<1.0e-8) d.imag(0); } );
 
@@ -84,9 +84,17 @@ int main()
         std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
     }
 
+    auto II = feng::pow( Is, 2 );
+
+    std::cout << "\ntotal energy is " << std::accumulate( II.begin(), II.end(), double(0) );
+
+    std::cout << "\nthe columns of current I is " << II.col();
+    
+    std::cout << "\n current I is \n" << Is;
+
 #endif
 
-#if 1
+#if 0
     expm_evaluator<double> ee;
     auto A_ = ee.A_real;
     std::fill( A_.diag_begin(), A_.diag_end(), 0.0 );
