@@ -459,7 +459,7 @@ struct construct_a
         return feng::pow(feng::abs(s),2);
     }
 
-    const matrix_type make_i_using_eigen_method( const value_type l ) const;
+    //const matrix_type make_i_using_eigen_method( const value_type l ) const;
     
 
 
@@ -518,6 +518,9 @@ struct construct_a
 
 }//namespace feng
 
+
+#if 0
+
 #include <eigen3/Eigen/Dense>
 
 template<typename T>
@@ -573,7 +576,7 @@ feng::construct_a<T>::make_i_using_eigen_method( const value_type l ) const
     return I;
 }
 
-
+#endif
 
 #endif//_CONSTRUCT_A_HPP_INCLUDED_SFOIDDDDFFSF8I3498FDAKJSSSSDFSFFFFFFFFFFFFFFFFFFFFFFFFF
 
