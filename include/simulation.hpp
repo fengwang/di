@@ -123,7 +123,7 @@ struct construct_a
             const value_type B[] = {0.4281, 3.5770, 19.3905, 64.3334};
             value_type tmp[4];
             std::fill( tmp, tmp + 4, value_type() );
-            auto const ss = s_ * s_;
+            value_type const ss = s_ * s_;
             std::transform( B, B + 4, tmp, [ss]( value_type b )
             {
                 return std::exp( -b * ss );
