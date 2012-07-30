@@ -84,6 +84,14 @@ int main()
         std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
     }
 
+    auto II = feng::pow( Is, 2 );
+
+    std::cout << "\ntotal energy is " << std::accumulate( II.begin(), II.end(), double(0) );
+
+    std::cout << "\nthe columns of current I is " << II.col();
+    
+    std::cout << "\n current I is \n" << Is;
+
 #endif
 
 #if 0
