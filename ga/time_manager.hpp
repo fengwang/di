@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <iostream>
 
 namespace ga
 {
@@ -21,13 +22,20 @@ namespace ga
 
         time_manager( const std::uint32_t planning_time_in_second_ = 1000 ) :
             start( std::chrono::system_clock::now() ),
-            planning_time_in_second( planning_time_in_second_ )
+            planning_time_in_second( planning_time_in_second_ ),
+            elapse_time_in_second(0)
         {}
+
+        void operator()( const std::uint32_t planning_time_in_second_ )
+        {
+            set_planning_time(planning_time_in_second_);
+        }
 
         //set planning time to another value
         void set_planning_time( const std::uint32_t planning_time_in_second_ = 1000 )
         {
             planning_time_in_second = planning_time_in_second_;
+            elapse_time_in_second = 0;
         }
 
         //return time elapsed in second
@@ -45,6 +53,8 @@ namespace ga
 
         bool is_timeout()
         {
+            if ( !(elapse_time_in_second & 0x7f) )
+                std::cerr << "\ntime manger: " << elapse_time_in_second << " of " << planning_time_in_second;
             return elapse_time() > planning_time_in_second;
         }
 

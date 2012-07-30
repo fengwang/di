@@ -60,13 +60,14 @@ namespace ga
             auto& vg = feng::singleton<vg::variate_generator<double>>::instance();
             auto const p = vg();
 
-            return std::distance( weigh_array.begin(), std::upper_bound( weigh_array.begin(), weigh_array.end(), p ) ) - 1;
+            return std::distance( weigh_array.begin(), std::upper_bound( weigh_array.begin(), weigh_array.end(), p ) );
         }
     };//struct xover_manager 
 
 
     struct uniform_binary_xover
     {
+        typedef uniform_binary_xover self_type;
         typedef std::uint64_t uint_type;
         void operator()( const uint_type father, const uint_type mother, uint_type& son, uint_type& daughter ) const 
         {
@@ -78,7 +79,14 @@ namespace ga
             son      = gray_to_uint64()( (f & lower_mask) | (m & upper_mask) );
             daughter = gray_to_uint64()( (m & lower_mask) | (f & upper_mask) );
         }
-    
+
+        void operator()( uint_type& father, uint_type& mother ) const 
+        {
+            uint_type son, daughter;
+            self_type()(father, mother, son, daughter);
+            father = son;
+            mother = daughter;
+        }
     };//struct binary_xover 
 
     // usage:
@@ -88,6 +96,7 @@ namespace ga
     // feng::matrix<uint64_t> md;
     // //crossover mf and mm, result in ms and md
     // uniform_binary_matrix_xover()( mf, mm, ms, md );
+#if 0
     struct uniform_binary_matrix_xover
     {
         template<typename Symmetric_Binary_Matrix_Type>
@@ -121,66 +130,45 @@ namespace ga
             
         }
     };
-
-
+#endif
 
     struct single_point_xover
     {
+        typedef single_point_xover self_type;
         template<typename Uint_Type>
-        void operator()(Uint_Type const f, Uint_Type const m, Uint_Type& s, Uint_Type& d) const 
+        void operator()(Uint_Type const father, Uint_Type const mother, Uint_Type& s, Uint_Type& d) const 
         {
             const std::size_t length = sizeof(Uint_Type) << 3; 
             auto& vg = feng::singleton<vg::variate_generator<double>>::instance();
             const std::size_t right_pos = vg() * length;
             const std::size_t left_pos = length - right_pos;
 
+            Uint_Type const f = uint64_to_gray()(father);
+            Uint_Type const m = uint64_to_gray()(mother);
             s = ((f >> right_pos) << right_pos) | (( m << left_pos ) >> left_pos);
             d = ((m >> right_pos) << right_pos) | (( f << left_pos ) >> left_pos);
+
+            if ( f == m )
+            {
+                s = f;
+                const Uint_Type bitmask = Uint_Type(1) << right_pos;
+                d = f ^ bitmask;
+            }
+
+            s = gray_to_uint64()( s );
+            d = gray_to_uint64()( d );
+        }
+
+        template<typename Uint_Type>
+        void operator()( Uint_Type& father, Uint_Type& mother ) const 
+        {
+            Uint_Type son, daughter;
+            self_type()(father, mother, son, daughter);
+            father = son;
+            mother = daughter;
         }
 
     };//struct single_point_xover 
-
-    struct uniform_xover
-    {
-        template<typename Uint_Type>
-        void operator()(Uint_Type const f, Uint_Type const m, Uint_Type& s, Uint_Type& d) const 
-        {
-            Uint_Type hig_mask, low_mask;
-            if ( 4 == sizeof(Uint_Type) )
-            {
-                hig_mask = 0xaaaaaaaa;
-                low_mask = 0x55555555;
-            }
-            if ( 8 == sizeof(Uint_Type) )
-            {
-                hig_mask = 0xaaaaaaaaaaaaaaaaUL;
-                low_mask = 0x5555555555555555UL;
-            }
-            assert( hig_mask );
-            assert( low_mask );
-
-            s = (f & hig_mask) | (m & low_mask);
-            d = (m & hig_mask) | (f & low_mask);
-        } 
-    };//struct uniform_xover
-
-
-
-
-
-
-
-    struct binary_matrix_xover
-    {
-    
-    
-    };
-
-
-
-
-
-
 
 };//namespace ga
 

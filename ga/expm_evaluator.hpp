@@ -1,11 +1,10 @@
+#ifndef _EXPM_EVALUATOR_HPP_INCLUDED_SDFOIU4398YUASFKJH4978YASFIUHYU7HASFIUHT9YU8SFUISFUIWREUI998473
+#define _EXPM_EVALUATOR_HPP_INCLUDED_SDFOIU4398YUASFKJH4978YASFIUHYU7HASFIUHT9YU8SFUISFUIWREUI998473
+
 #include <simulation.hpp>
 
-#include <iostream>
-#include <algorithm>
-#include <iterator>
-#include <iomanip>
-
-#include <ctime>
+namespace feng
+{
 
 template<typename T=double>
 struct expm_evaluator
@@ -31,7 +30,8 @@ struct expm_evaluator
                         A_real( host_type().make_new_a() )
     {
         Is_real.resize( A_real.row(), offset.col() );
-        for ( size_t i = 0; i != offset.col() && i != A_real.row(); ++i )
+        for ( size_t i = 0; i != offset.col(); ++i )
+        //for ( size_t i = 0; i != offset.col() && i != A_real.row(); ++i )
         {
             auto I = host_type(). make_new_i_with_offset(A_real, 7.879, offset.col_begin(i));
             auto const mid = I.row() >> 1;
@@ -42,6 +42,8 @@ struct expm_evaluator
 
     value_type operator()( const complex_matrix_type& A )
     {
+        assert( A.row() == A_real.row() );
+        assert( A.col() == A_real.col() );
         A_guess = A;
         feng::for_each( A_guess.diag_begin(), A_guess.diag_end(), gxy2.begin(), []( complex_type&c, const value_type& v ){ c = complex_type(-v, 0); } );
 
@@ -49,7 +51,7 @@ struct expm_evaluator
 
         std::size_t const n = A.row();
 
-        for ( size_t i = 0; (i != offset.col()) && (i != n); ++i )
+        for ( size_t i = 0; i != offset.col(); ++i )
         {
             host_type().make_new_i_with_offset( A_expm_cache, A_guess, 7.879, offset.col_begin(i), Is_guess.col_begin(i) );
         }    
@@ -62,46 +64,7 @@ struct expm_evaluator
     }
 
 };
+}//namespace feng
 
-int main()
-{
-#if 1
-    auto A = feng::construct_a<double>().make_new_a();
-    feng::for_each( A.begin(), A.end(), [](std::complex<double>&d){ if(std::abs(d.real())<1.8e-8) d.real(0); if(std::abs(d.imag())<1.0e-8) d.imag(0); } );
-
-    auto const offset = feng::construct_a<double>().make_gxy2_offset();
-
-    feng::construct_a<double> :: matrix_type Is( A.row(), offset.col() );
-
-
-    std::cout << "\nA=\n" << A;
-
-    for ( size_t i = 0; i != offset.col(); ++i )
-    {
-        auto I = feng::construct_a<double>(). make_new_i_with_offset(A,7.879, offset.col_begin(i));
-        feng::for_each( I.begin(), I.end(), [](double&d){ if (std::abs(d)<=1.0e-8) d=0; } );
-        auto const mid = I.row() >> 1;
-        std::copy( I.col_begin(mid), I.col_end(mid), Is.col_begin(i) );
-    }
-
-#endif
-
-#if 0
-    expm_evaluator<double> ee;
-    auto A_ = ee.A_real;
-    std::fill( A_.diag_begin(), A_.diag_end(), 0.0 );
-    std::cout << ee( A );
-#endif
-
-    return 0;
-
-
-
-
-
-
-
-
-
-}
+#endif//_EXPM_EVALUATOR_HPP_INCLUDED_SDFOIU4398YUASFKJH4978YASFIUHYU7HASFIUHT9YU8SFUISFUIWREUI998473
 

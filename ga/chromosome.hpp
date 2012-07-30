@@ -5,7 +5,7 @@ namespace ga
 {
     // example:
     // std::shared_ptr<chromosome<feng::matrix<uint64>>> sfoijeoijsfda;
-
+#if 0
     template < typename Chromosome_Dominance_Type, typename Fitness_Type = double >
     struct chromosome
     {
@@ -23,6 +23,7 @@ namespace ga
     {
         return lhs.fit < rhs.fit;
     }
+#endif
 
 }//namespace ga
 

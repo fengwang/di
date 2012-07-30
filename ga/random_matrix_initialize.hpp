@@ -28,6 +28,25 @@ namespace ga
         }
     };//struct random_initialize 
 
+    struct symmetric_random_matrix_initialize
+    {
+        template<typename T, std::size_t D, typename A>
+        void operator()(feng::matrix<T,D,A>& m ) const 
+        {
+            assert( m.row() == m.col() );
+
+            for ( std::size_t i = 1; i != m.row(); ++i )
+            {
+                feng::for_each( m.upper_diag_begin(i), m.upper_diag_end(i), 
+                                [](T& v){v = random_initialize<T>()();} ); 
+            
+                std::copy( m.upper_diag_begin(i), m.upper_diag_end(i), 
+                           m.lower_diag_begin(i) );
+            }
+        }
+    };
+
+#if 0
     // usage:
     //          std::size_t n = 16;
     //          auto m = symmetric_random_matrix_initialize()(n);
@@ -49,12 +68,17 @@ namespace ga
 
             return m;
         }
+        template<typename T, std::size_t D, typename A>
+        void operator()(feng::matrix<T,D,A>& m ) const 
+        {
+            feng::for_each( m.begin(), m.end(), [](T& v){v = random_initialize<T>()();} ); 
+        }
 
     };//struct random_matrix_initialize 
 
     // generate a random matrix for a chromosome as initial status
     template<typename Uint_Type = std::uint64_t, typename Fit_Type = double>
-    struct chromosomei_random_initialize
+    struct chromosome_random_initialize
     {
         typedef feng::matrix<Uint_Type> matrix_type;
         typedef Fit_Type fit_type;
@@ -71,6 +95,7 @@ namespace ga
     
     };//chromosomei_random_initialize 
 
+#endif
 
 
 
