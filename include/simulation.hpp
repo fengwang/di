@@ -196,8 +196,8 @@ struct construct_a
 
     const array_vector_type make_beam_vector() const
     {
-        auto const mx = 1;// make_beamx_max();
-        auto const my = 1;// make_beamy_max();
+        auto const mx = 2;// make_beamx_max();
+        auto const my = 2;// make_beamy_max();
         auto const gy = make_gyvec();
         array_vector_type beams {1};
 

@@ -23,7 +23,7 @@ namespace ga
         //template<typename Binary_Matrix, typename Real_Complex_Matrix, typename Real_Type=double>
         //void operator()( const Binary_Matrix& bm, Real_Complex_Matrix& rm, const Real_Type lower=0.0, const Real_Type upper=0.06 ) const
         template<typename T1, std::size_t D1, typename A1, typename T2, std::size_t D2, typename A2, typename Real_Type=double>
-        void operator()( const feng::matrix<T1,D1,A1>& bm, feng::matrix<T2,D2,A2>& rm, const Real_Type lower=0.0, const Real_Type upper=0.06 ) const
+        void operator()( const feng::matrix<T1,D1,A1>& bm, feng::matrix<T2,D2,A2>& rm, const Real_Type lower=-0.06, const Real_Type upper=0.06 ) const
         {
             typedef T1 int_type;
             typedef T2 complex_type;
@@ -57,7 +57,7 @@ namespace ga
 
         template<typename Binary_Matrix, typename Real_Type=double>
         feng::matrix<std::complex<Real_Type>> const 
-        operator()( const Binary_Matrix& bm, const Real_Type lower=0.0, const Real_Type upper=0.06 ) const 
+        operator()( const Binary_Matrix& bm, const Real_Type lower=-0.06, const Real_Type upper=0.06 ) const 
         {
             feng::matrix<std::complex<Real_Type>> rm( bm.row(), bm.col() );
             binary_matrix_to_real_complex_matrix_symmetric()( bm, rm, lower, upper );
@@ -80,7 +80,7 @@ namespace ga
             return binary_matrix_to_real_complex_matrix_symmetric()(bm, rm, lower_boundary, upper_boundary);
         }
 
-        symmetric_binary_matrix_to_real_complex_matrix_translator( const value_type lower_boundary_=0.0, const value_type upper_boundary_=0.06 ) :
+        symmetric_binary_matrix_to_real_complex_matrix_translator( const value_type lower_boundary_=-0.06, const value_type upper_boundary_=0.06 ) :
             lower_boundary(lower_boundary_), upper_boundary(upper_boundary_)
         {}
 
